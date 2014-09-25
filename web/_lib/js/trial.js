@@ -1,4 +1,16 @@
+/**
+ * @file This file contains the constructor for a trial object, which is loaded with every screen/item. 
+ * The functions that generate the experiment parts are here.
+ */
 
+/// Changes: runextra, playWAVSound, makeWAVSoundButton
+
+/**
+ * Called as Experigen.make_into_trial, this is not a constructor
+ * @name Experigen.trial
+ * @param {Experigen.trial} that The screen to be.
+ * @class
+ */
 Experigen.make_into_trial = function (that) {
 
 	that.userCode = Experigen.userCode;
@@ -12,8 +24,15 @@ Experigen.make_into_trial = function (that) {
 	that.callingPart = 0;
 	that.soundbuttons = [];
 	that.responses = 0;
-	
 
+	/** 
+	 * Advances by one trial part or steps to the next
+	 * screen if finished.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param [spec] Extra arguments, spec.hide and spec.disable if set true,
+	 * will hide or disable the current trial part respectively.
+	 */
 	that.advance = function(spec) {
 		var parts = $(".trialpartWrapper");
 		var part = "";
@@ -70,8 +89,8 @@ Experigen.make_into_trial = function (that) {
 						$("#currentform").append(str);
 					}
 					// send the form
-					// enable all text fields before sending, because disabled elements will not be sent
-					$("#currentform " + 'input[type="text"]').prop("disabled",false)
+					// enabled all text fields before sending, because disabled elements will not be sent
+					$("#currentform " + 'input[type="text"]').prop("disabled", false)
 					Experigen.sendForm($("#currentform"));
 					Experigen.advance();
 				} else {
@@ -86,7 +105,19 @@ Experigen.make_into_trial = function (that) {
 		return true;
 	}
 
-	
+	/** 
+	 * Inserts a scale to the DOM and to the Experigen.trial model.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param obj {Object} A collection of options
+	 * @param [obj.buttons=["1",...,"7"]] {String[]} The labels of the buttons
+	 * @param [obj.edgelabels=none] {String[]} A 2-element array of labels of the edges on the side of the scale. By default, there is no label.
+	 * @param [obj.linebreaks=0] {Number} Number of line breaks (br's) placed after the scale
+	 * @param [obj.buttontype="button"] {String} "button" or "radio"
+	 * @param [obj.disable=false] {boolean} If true, the scale will be disabled after used.
+	 * @param [obj.hide=false] {boolean} If true, the scale will be hidden after used.
+	 * @param [obj.runextra=""] {String} A string of JS code to be run after the scale is used, after calling {@link Experigen.trial.continueButtonClick}()
+	 */
 	that.makeScale = function(obj) {
 		Experigen.screen().responses++;
 		var buttons = obj.buttons || ["1","2","3","4","5","6","7"];
@@ -96,6 +127,7 @@ Experigen.make_into_trial = function (that) {
 		if (obj.buttontype === "radio") { buttontype = "radio"; };
 		var disable = (obj.disable) ? true  : false;
 		var hide    = (obj.hide) ? true  : false;
+		var runextra = (obj.runextra) ? obj.runextra : "";
 
 		var serverValues = obj.serverValues || buttons;
 		/// validate serverValues here to be non-empty and distinct
@@ -105,7 +137,7 @@ Experigen.make_into_trial = function (that) {
 		str += '<div class="scaleEdgeLabel">' + edgelabels[0] + '</div>';
 		for (var i=0; i<buttons.length; i+=1) {
 			str += '<div class="scalebuttonWrapper">';
-			str += '<input type="' + buttontype + '" value="'+ buttons[i] +'" id="' + Experigen.screen().responses + 'button' + i + '" name="scale'+ Experigen.screen().responses +'" class="scaleButton" onClick="Experigen.screen().recordResponse(' + Experigen.screen().responses + "," + "'" + buttons[i] + "'" + ');Experigen.screen().continueButtonClick(this,{hide:' +  hide + ',disable:' + disable + '});';
+			str += '<input type="' + buttontype + '" value="'+ buttons[i] +'" id="' + Experigen.screen().responses + 'button' + i + '" name="scale'+ Experigen.screen().responses +'" class="scaleButton" onClick="Experigen.screen().recordResponse(' + Experigen.screen().responses + "," + "'" + buttons[i] + "'" + ');Experigen.screen().continueButtonClick(this,{hide:' +  hide + ',disable:' + disable + '});' + runextra;
 
 			if (obj.rightAnswer) {
 				str += 'Experigen.screen().feedbackOnText(this,\'' + obj.feedbackID + '\',\'' + obj.matchRegExpression + '\',\'' + obj.rightAnswer + '\',\'' + obj.feedbackWrong + '\',\'' + obj.feedbackMatch + '\',\'' + obj.feedbackRight + '\')';
@@ -120,6 +152,16 @@ Experigen.make_into_trial = function (that) {
 		return str;
 	}
 
+
+	/** 
+	 * Records the response of a scale to the hidden form response field. The experiment
+	 * spreadsheet will have a field called responseN with N being the number of the current
+	 * scale on the screen, with a value of the name of the given button.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param scaleNo The number of the scale
+	 * @param buttonNo The value of the button to save
+	 */
 	that.recordResponse = function (scaleNo, buttonNo) {
 		/// make all the necessary fields in document.forms["currentform"],
 		/// and fill them with data
@@ -128,7 +170,12 @@ Experigen.make_into_trial = function (that) {
 		}
 	}
 
-
+	/**
+	 * The soundManager way to play a sound (no WAVs). Called with a soundID. Invoked by
+	 * the sound button.
+	 * @method
+	 * @memberof Experigen.trial
+	 */
 	that.playSound = function (soundID, caller) {
 		// play the sound
 		soundManager.play(soundID);
@@ -141,7 +188,13 @@ Experigen.make_into_trial = function (that) {
 		// when the sound is done playing
 		Experigen.screen().findCaller(caller);
 	}
+	
 
+	/**
+	 * Determine which trialpartWrapper the call came from.
+	 * @method
+	 * @memberof Experigen.trial
+	 */
 	that.findCaller = function (caller) {
 		// determine which trialpartWrapper the came from
 		var comingFrom = $(caller);
@@ -164,6 +217,22 @@ Experigen.make_into_trial = function (that) {
 	}
 
 	
+	/** 
+	 * Inserts a text input to the DOM and to the Experigen.trial model.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param obj {Object|String} A collection of options, or simply the initial string in the text field. The object may contain fields for JS/CSS code
+	 *  passed to the HTML: style, onblur, onclick, onfocus, onchange
+	 * @param [obj.initValue] {String} The initial string to display.
+	 * @param [obj.allowempty] {boolean} Whether to allow the subject to leave the input empty.
+	 * @param [obj.disable] {boolean} Whether to allow the subject to change the input (?).
+	 * @param [obj.matchRegExpression] {boolean} Whether there is a regular expression to be matched by the response. See below.
+	 * @param [obj.rightAnswer] {String} The right answer, if there is such. See below.
+	 * @param [obj.feedbackID] The ID of the DOM element for feedback display.
+	 * @param [obj.feedbackWrong]{String} Feedback if the answer does not match the regexp. The substring RIGHTANSWER will be replaced by the right answer, if provided
+	 * @param [obj.feedbackMatch] {String} Feedback if the answer matches the regexp. The substring RIGHTANSWER will be replaced by the right answer, if provided
+	 * @param [obj.feedbackRight] {String} Feedback if the answer is right. The substring RIGHTANSWER will be replaced by the right answer.
+	 */
 	that.makeTextInput = function (obj) {
 
 		Experigen.screen().responses++;
@@ -219,7 +288,11 @@ Experigen.make_into_trial = function (that) {
 
 
 
-
+	/**
+	 * Provides the feedback, called by the input field
+	 * @method
+	 * @memberof Experigen.trial
+	 */
 	that.feedbackOnText = function (sourceElement, targetElement, regex, rightAnswer, feedbackWrong, feedbackMatch, feedbackRight) {
 		var str = $(sourceElement)[0].value || "";
 		str = str.trim();
@@ -243,6 +316,14 @@ Experigen.make_into_trial = function (that) {
 	}
 
 
+	/** 
+	 * Inserts a picture to the DOM and to the Experigen.trial model.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param obj {Object|String} A collection of options, or simply the file name of the picture. The object may contain fields for JS/CSS code
+	 *  passed to the HTML: style, width, height, alt, class, id, onblur, onclick, onfocus, onchange
+	 * @param [obj.src] {String} The source of the picture, as a file name.
+	 */
 	that.makePicture = function (obj) {
 	
 		if (typeof obj==="string") {
@@ -251,8 +332,8 @@ Experigen.make_into_trial = function (that) {
 		if (typeof obj!=="object") {
 			obj = {src: ""}
 		}
-		if (!obj.initValue) {
-			obj.scr = "";
+		if (!obj.src) {
+			obj.src = ""; // Fixed typos
 		}
 		obj.src = Experigen.settings.folders.pictures + obj.src;
 	
@@ -295,7 +376,12 @@ Experigen.make_into_trial = function (that) {
 		return str;	
 	}
 
-	
+	/**
+	 * Checks whether a text field is empty
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param obj jQuery/CSS selector for the text field
+	 */
 	that.checkEmpty = function (obj) {
 
 		if ($(obj).val().match(/^\s*$/)) {
@@ -308,6 +394,16 @@ Experigen.make_into_trial = function (that) {
 		}
 	}
 
+
+	/**
+	 * Generates a button in the DOM that will advance the experiment.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param [obj] {Object|String} A collection of options, or simply the label of the button.
+	 * @param [obj.label] {String} The label of the button. By default it is taken from {@link Experigen.settings}.string.continueButton
+	 * @param [obj.disable=false] {boolean} If true, the button will be disabled after used.
+	 * @param [obj.hide=false] {boolean} If true, the button will be hidden after used.
+	 */
 
 	that.continueButton = function (obj) {
 
@@ -336,6 +432,11 @@ Experigen.make_into_trial = function (that) {
 		return str
 	}
 
+	/**
+	 * Forwards the experiment: calls {@link Experigen.trial.advance} or {@link Experigen.advance} as needed
+	 * @method
+	 * @memberof Experigen.trial
+	 */
 	that.continueButtonClick = function (caller, spec) {
 
 		var comingFrom = Experigen.screen().findCaller(caller);
@@ -349,13 +450,24 @@ Experigen.make_into_trial = function (that) {
 
 
 	
+	/** 
+	 * Inserts a soundManager sound play button (no WAVs) to the DOM and to the Experigen.trial model.
+	 * @method
+	 * @memberof Experigen.trial
+	 * @param obj {Object|String} A collection of options, or simply the file name of the sound.
+	 * @param [obj.label] {String} The label of the button. By default, thaken from {@link Experigen.settings}.strings.soundButton
+	 * @param [obj.soundID] {boolean} An ID for the sound, by default the trial number + rank of the sound.
+	 * @param [obj.soundFile] {String} The file name of the sound.
+	 * @param [obj.advance] {boolean} Whether to advance on play.
+	 * @param [obj.soundFile2] {String} An optional 2nd sound file for 2 sound buttons next to each other
+	 */
 	that.makeSoundButton = function (obj) {
 
 		if (typeof obj==="string") {
 			obj = {soundFile: obj}
 		}
 		var label = obj.label || Experigen.settings.strings.soundButton;
-		var soundID  = obj.soundID || (Experigen.screen()[Experigen.resources.items.key]||"") + Experigen.screen().trialnumber + Experigen.screen().soundbuttons.length;
+		var soundID  = obj.soundID || Experigen.screen().trialnumber + Experigen.screen().soundbuttons.length;
 		soundID = "_" + soundID; // force all sounds to start with a non-numeric character
 		var soundFile = Experigen.settings.folders.sounds + obj.soundFile;
 		var advance = true;
@@ -407,9 +519,12 @@ Experigen.make_into_trial = function (that) {
 		str += '>';
 		return str;
 	}
+	
+
+
+	for(var i = 0; i < Experigen.screenplugins.length; i++){
+		Experigen.screenplugins[i](that);
+	}
 
 	return that;
 }
-
-
-

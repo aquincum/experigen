@@ -1,8 +1,17 @@
+// Changes: encoding protocol and pathname to the upload sourceurl field; allowing spaces in resource fields
 // connection to local text files and to the database
 
+/**
+ * @file Handling data connections between the server and the client side
+*/
+
+/**
+ * Loads the user codes assigned by the server to Experigen.userFileName and
+ * randomize the first 3 characters of Experigen.userCode
+ */
 Experigen.loadUserID = function () {
-	var that = this;
-	var jsonp_url = this.settings.databaseServer + "getuserid.cgi?experimentName=" + this.settings.experimentName  + "&sourceurl=" + encodeURIComponent(window.location);
+	var that = this; // Experigen
+	var jsonp_url = this.settings.databaseServer + "getuserid.cgi?experimentName=" + this.settings.experimentName  + "&sourceurl=" + encodeURIComponent(window.location.protocol + "://" + window.location.hostname + window.location.pathname); // we get the user ID based from the server
 	
 	if (this.settings.online) {
 		// online mode: connect to the database server
@@ -48,7 +57,12 @@ Experigen.loadUserID = function () {
 }
 
 
-
+/**
+ * the method called when sending information to the server. Sends a given form
+ * element from the DOM in a JSON serialized way.
+ * @param formObj The form element in the DOM to send the server
+ * @returns {boolean} true, if the AJAX request succeeds
+*/
 Experigen.sendForm = function (formObj) {
 	
 	if (this.settings.online) {
@@ -90,8 +104,16 @@ Experigen.sendForm = function (formObj) {
 }
 
 
-
-
+/**
+ * A wrapper around a simple AJAX request to a page.
+ * @param spec {Object} An object with three fields: url, wait, destination.
+ *    url -- the URL the request goes to;
+ *    wait -- false if asynchronic request;
+ *    destination -- a jQuery/CSS selector the data will be loaded to;
+ * @returns {Object} an object with two fields: key, table
+ *    key -- the array of the key (1st) field;
+ *    table -- the array of items
+ */
 Experigen.loadText = function (spec) {
 	var url = spec.url;
 	var wait = spec.wait;
@@ -110,6 +132,11 @@ Experigen.loadText = function (spec) {
 }
 
 
+
+/**
+ * The method that loads the resources to an array of items.
+ * @param name The URL of the resource file
+*/
 Experigen.loadResource = function (name) {
 
 	var key = "";
@@ -118,26 +145,31 @@ Experigen.loadResource = function (name) {
 	$.ajax({
 		url: name,
 		success: function(data) {
-			var lines = data.split(/[\n\r]/);
-			var fields = lines[0].replace(/\s+$/, '').split("\t");
+			var lines = data.split(/[\n\r]/); // split by newline
+			var fields = lines[0].replace(/\s+$/, '').split("\t"); // split first line by tab separators
+
+			// saving the first line as field names
 			key = fields[0]; // for now, the "key" for a tab-delimited file is always the first before the file's first tab
-			if (!fields.uniqueNonEmpty()) {
+			if (!fields.uniqueNonEmpty()) { // the key has to be unique and non-empty
 				console.error("Field names in " + name + " must be unique and non-empty!");
 				return false;
 			}
+
+			// loading items
 			var keys = []; // these are saved to be evaluated by uniqueNonEmpty()
-			LINE: for (var i=1; i<lines.length; i++) {
-				if (lines[i].match(/^\s*$/)) {
+			LINE: for (var i=1; i<lines.length; i++) { // for each line
+				if (lines[i].match(/^\s*$/)) { // If the line starts with whitespace, ignore it
 					continue LINE;
 				}
-				var line = lines[i].replace(/\s+$/, '').split("\t");
-				keys.push(line[0]);
-				var frame = {};
+				// var line = lines[i].replace(/\s+$/, '').split("\t"); // COMMENTED IT OUT BECAUSE OF TAB SEP FILES WITH SPACES IN FIELDS
+				var line = lines[i].split("\t"); // split line by tabs
+				keys.push(line[0]); // save the key
+				var frame = {}; // the item to save
 				for (var j=0; j<line.length; j++) {
 					frame[ fields[j] ] = line[j];
 				}
 				//console.log(frame);
-				items.push(frame);
+				items.push(frame); // save
 			}
 			if(!keys.uniqueNonEmpty()) {
 				console.error("In " + name + ", the values of the first column must be unique and non-empty!");
@@ -154,5 +186,3 @@ Experigen.loadResource = function (name) {
 	
 	return {table: items, key: key};
 }
-
-
