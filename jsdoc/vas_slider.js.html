@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Experigen documentation</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link href="styles/bootstrap.css" rel="stylesheet">
+    <link href="styles/docs.css" rel="stylesheet">
+    <link href="styles/bootstrap-custom.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <header class="header navbar navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="brand" href="#"><strong>Experigen</strong> documentation</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+          <div class="span4">
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+          </div>
+
+          <div class="span8">
+              <h1 class="page-header">Source: plugins/vas_slider.js</h1>
+              
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @file An attempt to create visual analog scales
+ */
+
+
+/**
+ * This function will actually be a member of an {@link Experigen.trial}.
+ * @param width The width of the scale in pixels
+ * @param height The height of the scale in pixels
+ * @param [obj] A collection of options
+ * @param [obj.innercolor="#0000ee"] The color of the slider
+ * @param [obj.outercolor="#ffffff"] The color of the whole scale
+ * @param [obj.innerwidth=5% of width] The width of the inner slider
+ * @param [obj.innerpic=null] If specified, the given picture will be used as the background for the slider
+ * @param [obj.outerpic=null] If specified, the given picture will be used as the background for the outer scale
+ * @returns The html for the scale to be included
+ */
+makeVAS = function (width, height, obj) {
+	Experigen.screen().responses++;
+	var newvas = new VAS(width, height, Experigen.screen().responses, this.vases.length, obj);
+	this.vases.push(newvas);
+	return newvas.html();
+}
+
+/**
+ * The plugin function, which is inserted by {@link Experigen.make_into_trial} into the
+ * methods of each {@link Experigen.trial}. It just adds the {@link makeVAS} function as
+ * a member method of each screen.
+ * @param trial {Experigen.trial} The trial screen passed to the plugin.
+ */
+function VASplugin(trial){
+	trial.makeVAS = makeVAS;
+	trial.vases = [];
+
+	// Making sure the user modifies  the scale. To do this, we wrap around @link Experigen.trial.advance
+	// save the main advance function.
+	trial.oldAdvance = Experigen.screen().advance;
+
+	// The wrapper
+	Experigen.screen().advance = function(spec){
+		var part = "#" + "part" + Experigen.screen().currentPart;
+		var proceed = true;
+		// each VAS in our part
+		$(part).find(".vas").each(function(index){
+			// get the index in vases
+			var n = $(this).attr("id").match(/[0-9]+$/);
+			if(!Experigen.screen().vases[n].clicked){
+				alert("You have not adjusted the visual analog scale.");
+				proceed = false;
+			}
+		});
+		if(proceed)
+			return trial.oldAdvance(spec);
+		else
+			return false;
+	}
+}
+
+
+/**
+ * And now we just register ourselves as a plugin to be loaded with every screen
+ */
+Experigen.addScreenPlugin(VASplugin);
+
+
+
+/**
+ * A visual analog scale.
+ * @class
+ * @param width The width of the VAS in pixels
+ * @param height The height of the VAS in pixels
+ * @param response_no The rank of the VAS within responses in the screen
+ * @param vas_no The rank of the VAS within all VASes in the screen
+ * @param [obj] A collection of options
+ * @param [obj.innercolor="#0000ee"] The color of the slider
+ * @param [obj.outercolor="#ffffff"] The color of the whole scale
+ * @param [obj.innerwidth=5% of width] The width of the inner slider
+ * @param [obj.innerpic=null] If specified, the given picture will be used as the background for the slider
+ * @param [obj.outerpic=null] If specified, the given picture will be used as the background for the outer scale
+ */
+function VAS(width, height, response_no, vas_no, obj){
+	var that = this;
+	this.width = width;
+	this.height = height
+	this.n = response_no;
+	this.vasn = vas_no;
+	var paramsobj = obj || {};
+	this.innercolor = paramsobj.innercolor || "#0000ee";
+	this.outercolor = paramsobj.outercolor || "#ffffff";
+	this.innerwidth = paramsobj.innerwidth || (width * 0.05);
+	this.innerpic = paramsobj.innerpic || null;
+	this.outerpic = paramsobj.outerpic || null;
+	this.dragmode = false;
+	this.savedmove = function(){};
+	this.savedup = function(){};
+	this.borderwidth = 1;
+	this.clicked = false;
+
+	/** Produces the HTML for the VAS
+	 * @returns the HTML
+	 */
+	this.html = function(){
+		var str = "&lt;div class='vas' id='vas" + that.vasn + "' ";
+		str += "style='";
+		str += "width:"+ that.width + "px;";
+		str += "height:"+ that.height + "px;";
+		if(that.outerpic)
+			str += 'background-image:url("' + that.innerpic + '");';
+		str += "background-color:" + that.outercolor + ";";			
+		str += "border: solid " + that.borderwidth + "px #aaa;";
+		str += "'>&lt;div class='clickedvas'";
+		str += "onmousedown='e = event || window.event;Experigen.screen().vases[" + that.vasn + "].innermousedown(e)' ";
+		str += "onmousemove='e = event || window.event;Experigen.screen().vases[" + that.vasn + "].innermousemove(e)' ";
+		str += "onmouseup='e = event || window.event;Experigen.screen().vases[" + that.vasn + "].innermouseup(e)' ";
+		str += "style='";
+		str += "width:" + that.innerwidth + "px;";
+		if(that.innerpic)
+			str += 'background-image:url("' + that.innerpic + '");';
+		str += "background-color:" + that.innercolor + ";";
+		str += "height:"+ that.height+"px;";
+		str += "cursor:pointer;";
+		str += "position:absolute;";
+		str += "left:" + (that.width/2-that.innerwidth/2) + "px;";
+		str += "'>";
+		str += "&lt;/div>&lt;/div>";
+		str += "&lt;input type='hidden' name='response" +that.n+ "' value=0.5>";
+		that.load();
+		return str;
+	}
+
+	/**
+	 * Event handler for clicks.
+	 * @param event {Event} The click event from the browser.
+	 */
+	this.innerclicked = function(event){
+		that.clicked = true;
+		var $me = $("#vas" + that.vasn);  // this is the VAS
+		var outerleft = $me.offset().left;  // the left edge of the VAS
+		var outertop = $me.offset().top;  // the top edge of the VAS
+		var clickleft = event.clientX; // the X coordinate of the click
+		var $myinner = $me.children(".clickedvas"); // the inner div
+		var halfwidth = $myinner.width()/2;  // half of the inner div's width
+		var resultingleft = Math.max(clickleft - halfwidth, outerleft); // do not be so left so you fall off to the left
+		resultingleft = Math.min(resultingleft, outerleft + that.width - halfwidth*2); // do not be so right so that you fall of to the right
+		$myinner.offset({left: resultingleft, top: outertop+that.borderwidth}); // repositions the inner div
+		var perc = (resultingleft-outerleft)/(that.width - halfwidth*2); // the percentage
+		document.forms["currentform"]["response"+that.n].value = perc.toString(); // setting the hidden response variable to the percentage. This will be sent to the server.
+	}
+
+	this.innermousedown = function(event){
+		that.dragmode = true; // we are dragged!
+		that.innerclicked(event);
+	}
+	this.innermousemove = function(event){
+		if(that.dragmode) // only move if dragging is happening
+			that.innerclicked(event);
+	}
+	this.innermouseup = function(event){
+		if(that.dragmode){
+			that.dragmode = false; // cancel dragging
+			that.innerclicked(event);
+		}
+	}
+	this.load = function(){
+		// we want the whole document to respond to us if dragging is involved, so
+		// we attach event listeners to the document too
+		$(document).mousemove(that.innermousemove);
+		$(document).mouseup(that.innermouseup);
+	}
+
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+          </div>
+      </div>
+
+        <br clear="both">
+
+      <footer>
+		Experigen documentation, Daniel Szeredi 2014.
+		<br>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        <br>
+      </footer>
+      <script> prettyPrint(); </script>
+    </div>
+  </body>
+</html>

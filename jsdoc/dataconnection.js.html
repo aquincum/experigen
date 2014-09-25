@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Experigen documentation</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link href="styles/bootstrap.css" rel="stylesheet">
+    <link href="styles/docs.css" rel="stylesheet">
+    <link href="styles/bootstrap-custom.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <header class="header navbar navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="brand" href="#"><strong>Experigen</strong> documentation</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+          <div class="span4">
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+          </div>
+
+          <div class="span8">
+              <h1 class="page-header">Source: _lib/js/dataconnection.js</h1>
+              
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>// Changes: encoding protocol and pathname to the upload sourceurl field; allowing spaces in resource fields
+// connection to local text files and to the database
+
+/**
+ * @file Handling data connections between the server and the client side
+*/
+
+/**
+ * Loads the user codes assigned by the server to Experigen.userFileName and
+ * randomize the first 3 characters of Experigen.userCode
+ */
+Experigen.loadUserID = function () {
+	var that = this; // Experigen
+	var jsonp_url = this.settings.databaseServer + "getuserid.cgi?experimentName=" + this.settings.experimentName  + "&amp;sourceurl=" + encodeURIComponent(window.location.protocol + "//" + window.location.hostname + window.location.pathname); // we get the user ID based from the server
+	
+	if (this.settings.online) {
+		// online mode: connect to the database server
+		$.ajax({
+			dataType: 'jsonp',
+			url: jsonp_url,  
+			success: function (data) {
+				that.userFileName = data;
+				var code =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
+				that.userCode = code + that.userFileName;	
+				
+				that.load();
+				//console.debug(data);
+			}
+		});
+
+	} else {
+		// offline mode
+
+		// find device name
+		if (!$.totalStorage('deviceName')) {
+			var name =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
+			$.totalStorage('deviceName',name);
+		}
+		// find record of last file name, add 1 to that
+		if (!$.totalStorage('fileName')){
+			$.totalStorage('fileName', {});
+		}
+		var fileName = $.totalStorage('fileName');
+		if (fileName &amp;&amp; !fileName[this.settings.experimentName]) {
+			fileName[this.settings.experimentName] = 0;
+			$.totalStorage('fileName',fileName);
+		} 
+		fileName[this.settings.experimentName] += 1;
+		$.totalStorage('fileName',fileName);
+		this.userFileName = $.totalStorage('fileName')[this.settings.experimentName];
+		var code =  String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26)) + String.fromCharCode(65 + Math.floor(Math.random()*26));
+		this.userCode = code + this.userFileName;	
+		this.load();
+		// create interface for managing local data
+		this.manageLocalData();
+	}
+}
+
+
+/**
+ * the method called when sending information to the server. Sends a given form
+ * element from the DOM in a JSON serialized way.
+ * @param formObj The form element in the DOM to send the server
+ * @returns {boolean} true, if the AJAX request succeeds
+*/
+Experigen.sendForm = function (formObj) {
+	
+	if (this.settings.online) {
+		// online mode	
+		var jsonp_url = this.settings.databaseServer + "dbwrite.cgi?" + formObj.serialize();
+		$.ajax({
+			dataType: 'jsonp',
+			url: jsonp_url,  
+			success: function (data) {
+				//console.debug(data);
+				return true;
+			}
+		});
+
+	} else {
+	
+		//offline mode --- write locally if object, send to server if string
+		if (typeof formObj==="string") {
+			
+			var jsonp_url = this.settings.databaseServer + "dbwrite.cgi?" + formObj;
+			$.ajax({
+				dataType: 'jsonp',
+				url: jsonp_url,  
+				success: function (data) {
+					//console.debug(data);
+					return true;
+				}
+			});
+			
+		} else {
+			formObj.append('&lt;input type="hidden" name="deviceName" value="' + $.totalStorage('deviceName') + '">');
+			formObj.append('&lt;input type="hidden" name="localTime" value="' + Date().toString() + '">');
+			var experiment = $.totalStorage(this.settings.experimentName) || [];
+			experiment.push(formObj.serialize());
+			$.totalStorage(this.settings.experimentName, experiment);
+		}
+
+	}
+}
+
+
+/**
+ * A wrapper around a simple AJAX request to a page.
+ * @param spec {Object} An object with three fields: url, wait, destination.
+ *    url -- the URL the request goes to;
+ *    wait -- false if asynchronic request;
+ *    destination -- a jQuery/CSS selector the data will be loaded to;
+ * @returns {Object} an object with two fields: key, table
+ *    key -- the array of the key (1st) field;
+ *    table -- the array of items
+ */
+Experigen.loadText = function (spec) {
+	var url = spec.url;
+	var wait = spec.wait;
+	var destination = spec.destination;
+	
+	$.ajax({
+		url: url,
+		success: function (data) {
+			$(destination).html(data);
+		},
+		async: !wait,
+		error: function() {
+			console.error("Error! Footer not found.");
+		}
+	});
+}
+
+
+
+/**
+ * The method that loads the resources to an array of items.
+ * @param name The URL of the resource file
+*/
+Experigen.loadResource = function (name) {
+
+	var key = "";
+	var items = [];
+	
+	$.ajax({
+		url: name,
+		success: function(data) {
+			var lines = data.split(/[\n\r]/); // split by newline
+			var fields = lines[0].replace(/\s+$/, '').split("\t"); // split first line by tab separators
+
+			// saving the first line as field names
+			key = fields[0]; // for now, the "key" for a tab-delimited file is always the first before the file's first tab
+			if (!fields.uniqueNonEmpty()) { // the key has to be unique and non-empty
+				console.error("Field names in " + name + " must be unique and non-empty!");
+				return false;
+			}
+
+			// loading items
+			var keys = []; // these are saved to be evaluated by uniqueNonEmpty()
+			LINE: for (var i=1; i&lt;lines.length; i++) { // for each line
+				if (lines[i].match(/^\s*$/)) { // If the line starts with whitespace, ignore it
+					continue LINE;
+				}
+				// var line = lines[i].replace(/\s+$/, '').split("\t"); // COMMENTED IT OUT BECAUSE OF TAB SEP FILES WITH SPACES IN FIELDS
+				var line = lines[i].split("\t"); // split line by tabs
+				keys.push(line[0]); // save the key
+				var frame = {}; // the item to save
+				for (var j=0; j&lt;line.length; j++) {
+					frame[ fields[j] ] = line[j];
+				}
+				//console.log(frame);
+				items.push(frame); // save
+			}
+			if(!keys.uniqueNonEmpty()) {
+				console.error("In " + name + ", the values of the first column must be unique and non-empty!");
+				return false;
+			}
+			return true;
+		},
+		async: false,
+		error: function() {
+			console.error("The file " + name + " wasn't found.");
+			return false;
+		}
+	});
+	
+	return {table: items, key: key};
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+          </div>
+      </div>
+
+        <br clear="both">
+
+      <footer>
+		Experigen documentation, Daniel Szeredi 2014.
+		<br>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        <br>
+      </footer>
+      <script> prettyPrint(); </script>
+    </div>
+  </body>
+</html>

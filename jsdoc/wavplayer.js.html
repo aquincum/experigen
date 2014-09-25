@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Experigen documentation</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link href="styles/bootstrap.css" rel="stylesheet">
+    <link href="styles/docs.css" rel="stylesheet">
+    <link href="styles/bootstrap-custom.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <header class="header navbar navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="brand" href="#"><strong>Experigen</strong> documentation</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+          <div class="span4">
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+          </div>
+
+          <div class="span8">
+              <h1 class="page-header">Source: plugins/wavplayer.js</h1>
+              
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @file The plugin for playing WAV files.
+ */
+
+
+
+/** 
+ * Inserts a wavPlayer sound play button (WAVs) to the DOM and to the Experigen.trial model.
+ * @method
+ * @memberof Experigen.trial
+ * @param obj {Object|String} A collection of options, or simply the file name of the sound.
+ * @param [obj.label] {String} The label of the button. By default, thaken from {@link Experigen.settings}.strings.soundButton
+ * @param [obj.soundID] {boolean} An ID for the sound, by default the trial number + rank of the sound.
+ * @param [obj.soundFile] {String} The file name of the sound.
+ * @param [obj.folder] {boolean} The folder to load the sound from.  By default, thaken from {@link Experigen.settings}.folders.sounds
+ * @param [obj.maxRepeat] {Number} How many times the sound play can be repeated by the subject.
+ * @param [obj.advance] {boolean} Whether to advance on play.
+ */
+makeWAVSoundButton = function (obj) {
+	
+	if (typeof obj==="string") {
+		obj = {soundFile: obj}
+	}
+	var maxRepeat;
+	var limited;
+	if (!obj.maxRepeat){
+		maxRepeat = 0;
+		limited = 0;
+	}
+	else{
+		maxRepeat = obj.maxRepeat;
+		limited = 1;
+	}
+	if (!obj.folder)
+		obj.folder = Experigen.settings.folders.sounds;
+	var advance = true;
+	if (obj.advance===false) {
+		advance = false;
+	}
+	
+	var label = obj.label || Experigen.settings.strings.soundButton;
+	var soundID  = obj.soundID || Experigen.screen().trialnumber + Experigen.screen().soundbuttons.length;
+	var soundFile = obj.folder + obj.soundFile;
+	obj.soundFile = soundFile;
+	var advance = true;
+	Experigen.screen().soundbuttons.push({id: soundID, presses: 0, file: soundFile, limited: limited, maxRepeat: maxRepeat, advance: advance});
+	
+	var str = "";
+	str += '&lt;input type="button" ';
+	str += ' id="' + soundID +'"';
+	str += ' value="' + label + '"';
+	str += ' onClick="Experigen.screen().playWAVSound(\'' + obj.soundFile + '\',this);"';
+	str += ' style="margin-left: 10px;"'
+	str += '>';
+	return str;
+}
+
+
+/**
+ * The wavPlayer way to play a sound (WAVs). Called with a sound
+ * file name. Invoked by the WAV sound button.  @method @memberof
+ * Experigen.trial
+ */
+playWAVSound = function (soundfile, caller) {
+	// play the sound
+	wp.doPlay(soundfile);
+	if(Experigen.screen().soundbuttons[0].advance)
+		wp.getPlayer().attachHandler("PLAYER_STOPPED","Experigen.screen().advance()")
+	for (i=0; i&lt;Experigen.screen().soundbuttons.length; i+=1) {
+		if (Experigen.screen().soundbuttons[i].file == soundfile) {
+			Experigen.screen().soundbuttons[i].presses += 1;
+			if(Experigen.screen().soundbuttons[i].limited){
+				if (Experigen.screen().soundbuttons[i].maxRepeat &lt;= Experigen.screen().soundbuttons[i].presses){
+					$("#" + Experigen.screen().soundbuttons[i].id).attr("disabled","disabled");
+					$("#" + Experigen.screen().soundbuttons[i].id).attr("title","You can only listen to the sound "+Experigen.screen().soundbuttons[i].maxRepeat+" times");
+				}
+			}
+		}
+	}
+	
+	// find who called it, so the screen can advance 
+	// when the sound is done playing
+	Experigen.screen().findCaller(caller);
+}
+
+
+
+function WAVPlayerPlugin(trial){
+	trial.makeWAVSoundButton = makeWAVSoundButton;
+	trial.playWAVSound = playWAVSound;
+}
+
+Experigen.addScreenPlugin(WAVPlayerPlugin);
+
+/**
+ * The WavPlayer handler
+ * @class
+ * @param _pid A DOM ID for the element.
+ * @param path Path to the flash.
+ */
+function WavPlayer(_pid,path)
+{
+	this.pid = _pid;
+	this.path = path || "./";
+	var that = this;
+
+	/**
+	 * Appends the flash in a 1x1 object to the page.
+	 * @method
+	 */
+	this.appendFlash = function () {
+		var str = "";
+		str += '&lt;div class="scaleWrapper">';
+		str += '&lt;div id="InfoFile">&lt;/div>';
+		str += '&lt;div id="InfoSound">&lt;/div>';
+		str += '&lt;div id="InfoState" hidden=true>&lt;/div>';
+		str += '&lt;object    classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"';
+		str += '		width="1"';
+		str += '	height="1"';
+		str += '	id="' + this.pid + '"';
+		str += '	align="middle">';
+//		str += '&lt;param name="movie" value="' + this.path + 'wavplayer.swf?gui=none&amp;h=20&amp;w=300&amp;"/>';
+		str += '&lt;param name="movie" value="' + this.path + 'wavplayer.swf?gui=none&amp;"/>';
+		str += '&lt;param name="allowScriptAccess" value="always" />';
+		str += '&lt;param name="quality" value="high" />';
+		str += '&lt;param name="scale" value="noscale" />';
+		str += '&lt;param name="salign" value="lt" />';
+		str += '&lt;param name="bgcolor" value="#dddddd"/>';
+//		str += '&lt;embed src="' + this.path + 'wavplayer.swf?gui=none&amp;h=20&amp;w=300&amp;"';
+		str += '&lt;embed src="_lib/wavplayer/wavplayer.swf?gui=none&amp;"';
+//		str += '	   bgcolor="#dddddd"';
+		str += '	   bgcolor="' + $("#main").css("background-color") + '"';
+		str += '	   width="1"';
+		str += '	   height="1"';
+		str += '	   name="' + this.pid + '"';
+		str += '	   quality="high"';
+		str += '	   gui="none"';
+		str += '	   align="middle"';
+		str += '	   scale="noscale"';
+		str += '	   allowScriptAccess="always"';
+		str += '	   type="application/x-shockwave-flash"';
+		str += '	   pluginspage="http://www.macromedia.com/go/getflashplayer"';
+		str += '/>';
+		str += '&lt;/object>';
+		$('body').append(str);
+	}
+	this.getPlayer = function() {
+		var obj = document.getElementById(this.pid);
+		if(obj == null){
+			this.appendFlash();
+			var obj = document.getElementById(this.pid);
+		}
+		if (obj.doPlay) return obj;
+		for(i=0; i&lt;obj.childNodes.length; i++) {
+			var child = obj.childNodes[i];
+			if (child.tagName == "EMBED") return child;
+		}
+	}
+	/**
+	 * Plays a WAV file
+	 * @param fname The path to the WAV file
+	 * @method
+	 */
+	this.doPlay = function(fname) {
+		var player = this.getPlayer();
+		player.doPlay(fname);
+	}
+	this.doStop = function() {
+		var player = this.getPlayer();
+		player.doStop();
+	}
+	this.setVolume = function(v) {
+		var player = this.getPlayer();
+		player.setVolume(v);
+	}
+	this.setPan = function(p) {
+		var player = this.getPlayer();
+		player.setPan(p);
+	}
+	this.SoundLen = 0;
+	this.SoundPos = 0;
+	this.Last = undefined;
+	this.State = "STOPPED";
+	this.Timer = undefined;
+	this.getPerc = function(a, b) {
+		return ((b==0?0.0:a/b)*100).toFixed(2);
+	}
+	this.FileLoad = function(bytesLoad, bytesTotal) {
+		document.getElementById('InfoFile').innerHTML = "Loaded "+bytesLoad+"/"+bytesTotal+" bytes ("+this.getPerc(BytesLoad,BytesTotal)+"%)";
+	}
+	this.SoundLoad = function(secLoad, secTotal) {
+		document.getElementById('InfoSound').innerHTML = "Available "+secLoad.toFixed(2)+"/"+secTotal.toFixed(2)+" seconds ("+this.getPerc(secLoad,secTotal)+"%)";
+		this.SoundLen = secTotal;
+	}
+	this.InfoState = undefined;
+	this.Inform = function() {
+		if (this.Last != undefined) {
+			var now = new Date();
+			var interval = (now.getTime()-this.Last.getTime())/1000;
+			this.SoundPos += interval;
+			this.Last = now;
+		}
+		this.InfoState.innerHTML = this.State + "("+this.SoundPos.toFixed(2)+"/"+this.SoundLen.toFixed(2)+") sec ("+this.getPerc(this.SoundPos,this.SoundLen)+"%)";
+	}
+	this.SoundState = function(state, position) {
+		if (position != undefined) this.SoundPos = position;
+		if (this.State != "PLAYING" &amp;&amp; state=="PLAYING") {
+			this.Last = new Date();
+			this.Timer = setInterval(Inform, 100);
+			this.Inform();
+		} else
+		if (this.State == "PLAYING" &amp;&amp; state!="PLAYING") {
+			clearInterval(this.Timer);
+			this.Timer = undefined;
+			this.Inform();
+		}
+		this.State = state;
+		this.Inform();
+	}
+	/**
+	 * Initializes the WavPlayer, attaches it to the window, and sets up what needs to be set up.
+	 * @method
+	 */
+	this.init = function() {
+		var player = that.getPlayer();
+		if (!player || !player.attachHandler) setTimeout(that.init, 100); // Wait for load
+		else {
+			player.attachHandler("progress", "FileLoad");
+			player.attachHandler("PLAYER_LOAD", "SoundLoad");
+			player.attachHandler("PLAYER_BUFFERING", "SoundState", "BUFFERING");
+			player.attachHandler("PLAYER_PLAYING", "SoundState", "PLAYING");
+			player.attachHandler("PLAYER_STOPPED", "SoundState", "STOPPED");
+			player.attachHandler("PLAYER_PAUSED", "SoundState", "PAUSED");
+			that.InfoState = document.getElementById('InfoState')
+			that.Inform();
+		}
+	}
+}
+
+var wp = new WavPlayer("haxe","_lib/wavplayer/");
+window.wp = wp;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+          </div>
+      </div>
+
+        <br clear="both">
+
+      <footer>
+		Experigen documentation, Daniel Szeredi 2014.
+		<br>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        <br>
+      </footer>
+      <script> prettyPrint(); </script>
+    </div>
+  </body>
+</html>

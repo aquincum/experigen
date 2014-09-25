@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Experigen documentation</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link href="styles/bootstrap.css" rel="stylesheet">
+    <link href="styles/docs.css" rel="stylesheet">
+    <link href="styles/bootstrap-custom.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <header class="header navbar navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="brand" href="#"><strong>Experigen</strong> documentation</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+          <div class="span4">
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+          </div>
+
+          <div class="span8">
+              <h1 class="page-header">Source: _lib/js/array.js</h1>
+              
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @file This file expands the Array type of JavaScript. It adds some
+ * functions which are especially useful for Experigen. Most of
+ * these functions are used with a resource array: a list of items, which
+ * are key-value pairs of field-value names.
+ */
+
+
+/**
+ * Additional Array methods
+ * @scope _global_
+ * @name Array
+ * @class
+ */
+
+/**
+ * Returns the subset of the data, where the field matches the criterion.
+ * @param field Name of the field
+ * @param criterion The criterion the field has to match
+ * @returns {Array} The filtered array
+*/
+Array.prototype.subset = function (field, criterion) {
+	var arr = new Array();
+	for (var i=0 ; i&lt;this.length ; i++) {
+		if(this[i][field] === criterion) {
+			arr.push(this[i]);
+		}
+	}
+	return arr;
+}
+
+/**
+ * Returns the subset of the data, where the field does not match the criterion.
+ * @param field Name of the field
+ * @param criterion The criterion the field must not match
+ * @returns {Array} The filtered array
+*/
+Array.prototype.exclude = function (field, criterion) {
+	var arr = new Array();
+	for (var i=0 ; i&lt;this.length ; i++) {
+		if(this[i][field] !== criterion) {
+			arr.push(this[i]);
+		}
+	}
+	return arr;
+}
+
+/**
+ * Returns the subset of the data without a given block passed to the function. An
+ * item will be excluded if all fields are completely matched OR if the key field of the
+ * items resource is matched
+ * @param excludeArray {Array} The block of items to be excluded
+ * @returns {Array} The filtered array
+*/
+Array.prototype.excludeBlock = function (excludeArray) {
+	var newArray = [];
+	for (var i=0; i&lt;this.length; i++) {
+		var found = false;
+		for (var j=0; j&lt;excludeArray.length; j++) {
+			if (this[i]===excludeArray[j]) {
+				found = true;
+			} else {
+				if(Experigen &amp;&amp; Experigen.resources &amp;&amp; Experigen.resources.items &amp;&amp; this[i][Experigen.resources.items.key]===excludeArray[j][Experigen.resources.items.key]) {
+					found = true;
+				}
+			}
+		}
+		if (!found) {
+			newArray.push(this[i]);
+		}
+	}
+	return newArray;
+}
+
+/**
+ * Merge field-value arrays.
+ * @param arrays {...Array} Any number of arrays to be merged
+ * @returns {Array} The merged array
+*/
+Array.prototype.interleave = function () {
+	var newArray = [];
+	var args = Array.prototype.slice.call(arguments, 0); // turn "arguments" into a real array (of arrays)
+	args.unshift(this); // add the current array as the first member in the array of arrays
+	var maxLen = $.map( args , function(val, i) { return val.length; } ).sort().reverse()[0]; // find the length of the longest array
+
+	for (var i=0; i&lt;maxLen; i++) {
+		for (var j=0; j&lt;args.length; j++) {
+			if (args[j][i]) {
+				newArray.push(args[j][i]);
+			}
+		} 
+	}
+	return newArray;
+}
+
+/**
+ * Returns the first i members of the array
+ * @param [i=1] {Number} Default=1
+ * @returns {Array} The first i members
+*/
+Array.prototype.chooseFirst = function (i) {
+		if (!i) {
+			return this.slice(0,1);
+		} else {
+			return this.slice(0,i);
+		}
+}
+
+/**
+ * Returns the members but the first i members of the array
+ * @param [i=1] {Number} Default=1
+ * @returns {Array} The remaining members
+*/
+Array.prototype.excludeFirst = function (i) {
+		if (!i) {
+			return this.slice(1,this.length);
+		} else {
+			return this.slice(i,this.length);
+		}
+}
+
+/**
+ * Randomly samples the array
+ * @param i {Number} How many members from the array to sample
+ * @returns {Array} The resulting array
+*/
+Array.prototype.chooseRandom = function (i) {
+	var arr = this;
+	return arr.shuffle().chooseFirst(i);
+}
+
+
+/**
+ * Pairs up an array of items with a plain array or variable by adding its values
+ * to a new field. If the argument is an array, it will be cycled through the items.
+ * @param field {String} The name of the new field
+ * @param arr {Array|*} The array or object to put in the new field
+ * @returns {Array} The paired array.
+ * @example 
+ * // typical use to pair up views with items
+ * var experimentBlock = items.pairWith("view", "stimulus.ejs");
+ * @example
+ * var arr = [];
+ * for(var i = 0; i &lt; 10; i++) 
+ *   arr[i] = {"number": i};
+ * arr.pairWith("parity", ["odd","even"]);
+ * // result: [{number: 1, parity: "odd"}, {number: 2, parity: "even"}, 
+ * // {number: 3, parity: "odd"}, {number: 4, parity: "even"}, 
+ * // ... {number: 10, parity: "even"}]
+*/
+Array.prototype.pairWith = function (field, arr) {
+
+	if (arr===undefined || arr===null) { console.error("Can't pair with empty list!"); return false; }
+	if (Object.prototype.toString.apply(arr)!=='[object Array]') { arr = [arr];}
+
+	/// clone this
+	var newArray = [];
+	for (var i=0; i&lt;this.length; i+=1) {
+		newArray.push(jQuery.extend(true, {}, this[i]));
+	}
+
+	var arrPosition = 0;
+	for (var i=0 ; i&lt;newArray.length ; i++) {
+		newArray[i][field] = arr[arrPosition];
+		arrPosition++;
+		if(arrPosition>=arr.length) arrPosition=0;
+	}
+	if (Experigen) { 
+		Experigen.fieldsToSave[field] = true; 
+	}
+	return newArray;
+}
+
+
+/**
+ * Randomize the order of items in the array.
+ * @returns {Array} The resulting array.
+*/
+Array.prototype.shuffle = function () {
+	var arr  = new Array();
+	for (var i=0 ; i&lt;this.length ; i++) {
+		arr.push(this[i]);
+	}
+	for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
+	return arr;
+}
+
+
+/**
+ * Tests whether the array is unique and doesn't have empty elements
+ * @returns {boolean}
+*/
+Array.prototype.uniqueNonEmpty = function () {
+	
+	var noempties = true;
+	var hash = {};
+	for (var i=0 ; i&lt;this.length ; i++) {
+		if (!this[i] || this[i]=="") {
+			noempties = false;
+		} else {
+			hash[this[i]] = "1";
+		}
+	}
+	var hashlength=0;
+	for (i in hash) {hashlength++};
+	return (this.length===hashlength &amp;&amp; noempties);
+}
+
+/**
+ * Repeats the array.
+ * @param num {Number} The array is repeated num times.
+ * @returns {Array} The resulting array.
+*/
+Array.prototype.repeat = function (num) {
+
+	var newArray = [];
+	for (var i=0; i&lt;num; i++) {
+		newArray = newArray.concat(this);
+	}
+	return newArray;
+}
+
+
+String.prototype.repeat = function (num) {
+
+	var newArray = [];
+	for (var i=0; i&lt;num; i++) {
+		newArray.push(this.toString());
+	}
+	return newArray;
+}
+
+Boolean.prototype.repeat = function (num) {
+
+	var newArray = [];
+	for (var i=0; i&lt;num; i++) {
+		newArray.push(this==true);
+	}
+	return newArray;
+}
+
+
+Number.prototype.repeat = function (num) {
+
+	var newArray = [];
+	for (var i=0; i&lt;num; i++) {
+		newArray.push(parseFloat(this));
+	}
+	return newArray;
+}
+
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+          </div>
+      </div>
+
+        <br clear="both">
+
+      <footer>
+		Experigen documentation, Daniel Szeredi 2014.
+		<br>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        <br>
+      </footer>
+      <script> prettyPrint(); </script>
+    </div>
+  </body>
+</html>
