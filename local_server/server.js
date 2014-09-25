@@ -12,7 +12,7 @@ app.set("view engine", "ejs");
 
 
 
-app.use(express.static(__dirname + "/web"));
+app.use(express.static(__dirname + "/../web"));
 
 
 app.listen(3000);
