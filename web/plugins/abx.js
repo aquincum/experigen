@@ -4,9 +4,7 @@
  */
 
 
-
-function ABXPlugin(that){
-
+Experigen.addScreenPlugin(function(that) {
 	that.handleWAVError = function(event){
 		var t = event.target;
 		switch(t.error.code){
@@ -75,7 +73,7 @@ function ABXPlugin(that){
 		if(Experigen.screen().playing) return;
 		Experigen.screen().playing = true;
 		$('input:button').first().attr('disabled','disabled'); //!
-//		Experigen.wpHID = wp.getPlayer().attachHandler("PLAYER_STOPPED","console.log('Empty stop')");
+		//		Experigen.wpHID = wp.getPlayer().attachHandler("PLAYER_STOPPED","console.log('Empty stop')");
 		Experigen.lastPlay = (new Date()).getTime()-isi;
 		Experigen.screen().playABXoneWAVSound([id+'a',id+'b',id+'x'],isi,0);
 		
@@ -136,6 +134,4 @@ function ABXPlugin(that){
 		str += '</audio>';
 		return str;
 	}
-}
-
-Experigen.addScreenPlugin(ABXPlugin);
+});

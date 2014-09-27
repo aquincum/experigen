@@ -8,9 +8,10 @@
  * Experigen.settings.pluginsettings.reportsounderror
  * @param trial
  */
-addRSE = function(trial){
-	
-	append = function(){
+
+
+Experigen.addScreenPlugin(function(trial){
+	var append = function(){
 		if(trial.mo) trial.mo.disconnect();
 		if(trial.soundbuttons.length < 1) return;
 		var s = {};
@@ -23,6 +24,22 @@ addRSE = function(trial){
 		$("#reportsoundproblem").html(label);
 	}
 
+	/**
+	 * Appends a text box to report anything and advances the screen
+	 */
+	var reportSoundProblem = function(){
+		var rep = "<p>Could you explain what the problem is specifically?</p><input type='text' name='rspexplain' size='80' value='The sound file did not play.' onfocus='this.value=\"\";'>";
+		rep += "<input type='submit' onclick='rspSubmit();return false;'>";
+		$("#reportsoundproblem").html(rep);
+	}
+
+	var rspSubmit = function(){
+		var str = "<input type='hidden' name='soundproblem' value='" + $("input[name='rspexplain']").val() + "'>"; 
+		$("#currentform").append(str);
+		//	$("#reportsoundproblem").remove();
+		Experigen.recordResponse();
+	}
+
 	if(MutationObserver){
 		trial.mo = new MutationObserver(append); 
 		trial.mo.observe($("#main")[0], {childList: true});
@@ -30,32 +47,13 @@ addRSE = function(trial){
 	else{
 		$("#main").on("DOMNodeInserted", append);
 	}
-}
 
-/**
- * Appends a text box to report anything and advances the screen
-*/
-reportSoundProblem = function(){
-	var rep = "<p>Could you explain what the problem is specifically?</p><input type='text' name='rspexplain' size='80' value='The sound file did not play.' onfocus='this.value=\"\";'>";
-	rep += "<input type='submit' onclick='rspSubmit();return false;'>";
-	$("#reportsoundproblem").html(rep);
-}
-
-rspSubmit = function(){
-	var str = "<input type='hidden' name='soundproblem' value='" + $("input[name='rspexplain']").val() + "'>"; 
-	$("#currentform").append(str);
-//	$("#reportsoundproblem").remove();
-	Experigen.recordResponse();
-}
-
-Experigen.addScreenPlugin(function(trial){
-	addRSE(trial);
 	trial.reportSoundProblem = reportSoundProblem;
 	trial.rspSubmit = rspSubmit;
-/*	trial.reportsounderror_saved_advance = trial.advance;
-	trial.advance = function(spec){
+	/*	trial.reportsounderror_saved_advance = trial.advance;
+		trial.advance = function(spec){
 		if (Experigen.screen().currentPart > Experigen.screen().parts.length)
-			$("#reportsoundproblem").remove();
+		$("#reportsoundproblem").remove();
 		return Experigen.screen().reportsounderror_saved_advance(spec);
-	};*/
+		};*/
 });
