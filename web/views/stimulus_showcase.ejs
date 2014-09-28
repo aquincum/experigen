@@ -1,6 +1,7 @@
 
 <%
 	frame.text1 = frame.text1.replace(/_+/,"<b><i>" + item + "</i></b>");
+	attachKey({49:"#1button0", 50: "#1button1",  51: "#1button2", 52: "#1button3", 53: "#1button4", 54: "#1button5", 55: "#1button6",})
 %>
 
 
@@ -22,7 +23,7 @@
 
 
 <div class="trialpartWrapper" style="clear:both; text-align: center;">  
-	Which plural do you prefer?
+	Which plural do you prefer? (You could press a key on the keyboard too!)
 	<p>
 	<%= makeScale({buttons: ["1","2","3","4","5","6","7"], edgelabels: ["first one", "second one"]}) %>
 </div>
