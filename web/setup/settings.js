@@ -37,6 +37,8 @@ var Experigen =  {
 			sounds: "resources/sounds/",
 			pictures: "resources/pictures/"
 		},
+
+		plugins: [],
 	
 		footer: "views/footer.html",
 		missingview: "views/missingview.ejs"
