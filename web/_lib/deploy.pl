@@ -15,8 +15,6 @@ $inputfile[0] = [];
 push(@{$inputfile[0]}, "jquery/jquery-1.7.2.min.js");
 push(@{$inputfile[0]}, "jquery/jquery.total-storage.min.js");
 push(@{$inputfile[0]}, "ejs/ejs_production.js");
-push(@{$inputfile[0]}, "soundman/script/soundmanager2-nodebug-jsmin.js");
-push(@{$inputfile[0]}, "soundman/config.js");
 push(@{$inputfile[0]}, "js/array.js");
 
 $inputfile[1] = [];

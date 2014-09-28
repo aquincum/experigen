@@ -779,8 +779,11 @@ Experigen.resources = [];
 Experigen.position = -1;
 Experigen.initialized = false;
 
-/** {Function[]} Plugin functions that can be loaded from an external plugin js file.*/
+/** {Function[]} Plugin functions available for trials that can be loaded from an external plugin js file.*/
 Experigen.screenplugins = [];
+
+/** {Function[]} Plugin functions that are loaded at {@link Experigen.load}*/
+Experigen.loadplugins = [];
 
 if (Experigen.settings.online===undefined) {
 	Experigen.settings.online = true; // set to true for old settings files
@@ -830,7 +833,9 @@ Experigen.launch = function () {
 
 Experigen.load = function () {
 
-	var that = this;
+	var that = this, 
+	stopload = false,
+	waiting = 0;
 	$("#main").html(this.settings.strings.loading);
 	$(document).attr("title",this.settings.strings.windowTitle);
 
@@ -847,17 +852,22 @@ Experigen.load = function () {
 	this.progressbar = this.new_progressbar();
 	this.progressbar.initialize();
 
-	if (this.settings.audio) {
 
-		soundManager.onready(function() { 
-			if (!that.initialized) {
+	for(var i = 0, l = Experigen.loadplugins.length; i < l; i++){
+		if(Experigen.loadplugins.stopload) {
+			stopload = true;
+			waiting ++;
+		}
+		Experigen.loadplugins[i](function(){
+			if(stopload) waiting --;
+			if(stopload && waiting === 0){
 				that.initialize();
 				that.initialized = true;
 				that.advance();
 			}
 		});
-
-	} else {
+	}
+	if (!stopload) {
 		this.initialize();
 		this.initialized = true;
 		this.advance();
@@ -1097,13 +1107,27 @@ Experigen.eraseLocalData = function () {
 
 
 /**
- * Adds a plugin to the set of pluginse, which will be available on the screen/trial level.
+ * Adds a plugin to the set of plugins, which will be available on the screen/trial level.
  * These functions will be methods of {@link Experigen.trial}
  * @param pluginfunc {Function} Function of the plugin
  */
 Experigen.addScreenPlugin = function(pluginfunc){
 	Experigen.screenplugins.push(pluginfunc);
 }
+
+/**
+ * Adds a plugin to the set of plugins, which will be run when Experigen is loaded.
+ * Important: the function may take a callback argument that it calls whenever it is 
+ * done loading. If this is the case, the stopload argument should be set true
+ * to stop automatic initialization.
+ * @param pluginfunc {Function} Function of the plugin
+ */
+Experigen.addLoadPlugin = function(pluginfunc, stopload){
+	if(stopload) pluginfunc.stopload = true;
+	Experigen.loadplugins.push(pluginfunc);
+}
+
+
 
 
 //printing the content of js/launch.js
