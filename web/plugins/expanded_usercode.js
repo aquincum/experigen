@@ -2,7 +2,7 @@ if(Experigen.settings.online){
 	var jsonp_url = Experigen.settings.databaseServer + "getuserid.cgi?experimentName=" + Experigen.settings.experimentName  + "&sourceurl=" + encodeURIComponent(window.location.protocol + "//" + window.location.hostname + window.location.pathname); // we get the user ID based from the server
 	innerLoad = function(data){
 		if(Experigen.userFileName === ""){
-			setTimeout(function(){ innerLoad(data) }, 500);
+			setTimeout(function(){ innerLoad(data); }, 500);
 			return;
 		}
 		Experigen.userFileName = data;
@@ -18,7 +18,7 @@ if(Experigen.settings.online){
 		}
 		Experigen.userCode = code + Experigen.userFileName;
 		$("input[name='userCode']").val(Experigen.userCode);
-	}
+	};
 	$.ajax({
 		dataType: 'jsonp',
 		url: jsonp_url,  

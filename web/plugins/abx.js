@@ -27,27 +27,28 @@ Experigen.addScreenPlugin(function(that) {
 			t.load();
 			t.oncanplay = t.play;
 		}
-	}
+	};
 	that.registerSoundPlay = function (audiotag,isi){
 		audiotag.pause();
 		audiotag.onplay = audiotag.oncanplay = null;
-		var now = (new Date()).getTime();
-		var d = now-Experigen.lastPlay;
+		var now = (new Date()).getTime(),
+		d = now-Experigen.lastPlay;
 		console.log("Playing, d="+d);
 		if (d < isi){
 			setTimeout(function(){
 				audiotag.play();
 			},isi-d);
 		}
-		else
+		else {
 			audiotag.play();
-	}
+		}
+	};
 
 	that.finishABX = function() {
 		Experigen.screen().playing = false;
 		$('input:button').first().removeAttr('disabled'); //!
 		Experigen.screen().advance();
-	}
+	};
 
 	that.playABXoneWAVSound = function(soundfiles, isi, n) {
 		Experigen.lastPlay = (new Date()).getTime();
@@ -59,13 +60,15 @@ Experigen.addScreenPlugin(function(that) {
 
 		n = n + 1;
 		console.log("Stopped or first; n="+n+", playing="+JSON.stringify(Experigen.screen().playing));
-		if (n == soundfiles.length)
+		if (n === soundfiles.length) {
 			audiotag.onended = Experigen.screen().finishABX;
-		else
+		}
+		else {
 			audiotag.onended = function(){
 				Experigen.screen().playABXoneWAVSound(soundfiles,isi,n);
 			};
-	}
+		}
+	};
 
 
 	that.playABXtriadWAVSound = function (id, isi, caller) {
@@ -85,7 +88,7 @@ Experigen.addScreenPlugin(function(that) {
 		// find who called it, so the screen can advance 
 		// when the sound is done playing
 		Experigen.screen().findCaller(caller);
-	}
+	};
 
 
 
@@ -112,7 +115,7 @@ Experigen.addScreenPlugin(function(that) {
 		str += ' value="' + label + '"';
 		str += ' onClick="Experigen.screen().playABXtriadWAVSound(\'' + soundID + '\',' + isi + ',this);"';
 		str += ' onerror="Experigen.screen().handleWAVError;"';
-		str += ' style="margin-left: 10px;"'
+		str += ' style="margin-left: 10px;"';
 		str += '>';
 		str += '<audio src="' + aFile + '" ';
 		str += 'id="audio' + soundID + 'a" ';
@@ -133,5 +136,5 @@ Experigen.addScreenPlugin(function(that) {
 		str += '<p>Your browser does not support the <code>audio</code> element.</p>';
 		str += '</audio>';
 		return str;
-	}
+	};
 });
