@@ -234,5 +234,8 @@ function WavPlayer(_pid,path)
 	}
 }
 
+
 var wp = new WavPlayer("haxe","_lib/wavplayer/");
 window.wp = wp;
+
+wp.init();
