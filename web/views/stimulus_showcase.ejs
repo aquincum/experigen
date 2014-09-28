@@ -1,0 +1,44 @@
+
+<%
+	frame.text1 = frame.text1.replace(/_+/,"<b><i>" + item + "</i></b>");
+%>
+
+
+<div style="text-align: center; line-height:130%;">
+	<p>
+	<%= frame.text1 %>
+	<br>
+	<%= frame.text2 %>
+</div>
+
+<div class="trialpartWrapper" style="float:left; height: 3em; width: 40%;">
+	<%= makeSoundButton({soundFile: file_sg , soundFile2: this["file_pl" + order]}) %>
+</div>
+
+<div class="trialpartWrapper" style="float:right; height: 3em; width: 40%;">
+	<%= makeSoundButton({soundFile: file_sg , soundFile2: this["file_pl" + (3-order)]}) %>
+</div>
+
+
+
+<div class="trialpartWrapper" style="clear:both; text-align: center;">  
+	Which plural do you prefer?
+	<p>
+	<%= makeScale({buttons: ["1","2","3","4","5","6","7"], edgelabels: ["first one", "second one"]}) %>
+</div>
+
+<div class="trialpartWrapper" style="clear:both; text-align: center;">  
+	 Can you even differentiate between these two plurals!?
+	 <%= makeABXtriadWAVSoundButton({A: this["file_pl" + order], B: this["file_pl" + (3-order)], X: this["file_pl" + order], label: "Listen to ABX"}) %>
+</div>
+
+<div class="trialpartWrapper" style="clear:both; text-align: center;">  
+	 <%= makeScale({buttons: ["ABA", "ABB"]}) %>
+</div>
+
+<div class="trialpartWrapper" style="clear:both; text-align: center;">  
+	 Let's listen to some Salish WAV files..
+	 <%= makeWAVSoundButton({soundFile: "salish_walking.wav"}) %>
+</div>
+
+<div style="clear: both; height: 1px;">&nbsp;</div>
