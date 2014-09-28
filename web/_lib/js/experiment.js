@@ -118,7 +118,7 @@ Experigen.load = function () {
 
 
 	for(var i = 0, l = Experigen.loadplugins.length; i < l; i++){
-		if(Experigen.loadplugins.stopload) {
+		if(Experigen.loadplugins[i].stopload) {
 			stopload = true;
 			waiting ++;
 		}
