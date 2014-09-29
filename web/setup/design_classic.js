@@ -7,7 +7,7 @@ Experigen.initialize = function () {
 
 	var sampleItem =  items.subset("type","filler").chooseRandom(1)
 			.pairWith("order",1)
-			.pairWith("view","stimulus_showcase.ejs")
+			.pairWith("view","stimulus.ejs")
 			;
 
 	var block1 = []

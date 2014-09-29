@@ -35,11 +35,10 @@ var Experigen =  {
 		folders: {
 			views: "views/",
 			sounds: "resources/sounds/",
-			pictures: "resources/pictures/",
-			plugins: "plugins/"
+			pictures: "resources/pictures/"
 		},
 
-		plugins: ["abx", "wavhtml5", "presskey", "reportsounderror", "vas_slider"],
+		plugins: [],
 	
 		footer: "views/footer.html",
 		missingview: "views/missingview.ejs"

@@ -43,7 +43,6 @@ Experigen.addScreenPlugin(function(trial) {
 		var soundID  = obj.soundID || Experigen.screen().trialnumber + Experigen.screen().soundbuttons.length;
 		var soundFile = obj.folder + obj.soundFile;
 		obj.soundFile = soundFile;
-		var advance = true;
 		Experigen.screen().soundbuttons.push({id: soundID, presses: 0, file: soundFile, limited: limited, maxRepeat: maxRepeat, advance: advance});
 		
 		var str = "";
@@ -65,15 +64,21 @@ Experigen.addScreenPlugin(function(trial) {
 	var playWAVSound = function (soundfile, caller) {
 		// play the sound
 		wp.doPlay(soundfile);
-		if(Experigen.screen().soundbuttons[0].advance)
-			wp.getPlayer().attachHandler("PLAYER_STOPPED","Experigen.screen().advance()")
-		for (i=0; i<Experigen.screen().soundbuttons.length; i+=1) {
-			if (Experigen.screen().soundbuttons[i].file == soundfile) {
-				Experigen.screen().soundbuttons[i].presses += 1;
-				if(Experigen.screen().soundbuttons[i].limited){
-					if (Experigen.screen().soundbuttons[i].maxRepeat <= Experigen.screen().soundbuttons[i].presses){
-						$("#" + Experigen.screen().soundbuttons[i].id).attr("disabled","disabled");
-						$("#" + Experigen.screen().soundbuttons[i].id).attr("title","You can only listen to the sound "+Experigen.screen().soundbuttons[i].maxRepeat+" times");
+		for (var i=0, l=Experigen.screen().soundbuttons.length; i<l; i+=1) {
+			var sb = Experigen.screen().soundbuttons[i];
+			if (sb.file == soundfile) {
+				console.log(sb);
+				console.log("GOTCHA");
+				if(sb.advance){
+					console.log(sb);
+					wp.getPlayer().attachHandler("PLAYER_STOPPED","Experigen.screen().advance()");
+				}
+				console.log(sb);
+				sb.presses += 1;
+				if(sb.limited){
+					if (sb.maxRepeat <= sb.presses){
+						$("#" + sb.id).attr("disabled","disabled");
+						$("#" + sb.id).attr("title","You can only listen to the sound "+sb.maxRepeat+" times");
 					}
 				}
 			}
@@ -148,7 +153,7 @@ function WavPlayer(_pid,path)
 			var obj = document.getElementById(this.pid);
 		}
 		if (obj.doPlay) return obj;
-		for(i=0; i<obj.childNodes.length; i++) {
+		for(var i=0; i<obj.childNodes.length; i++) {
 			var child = obj.childNodes[i];
 			if (child.tagName == "EMBED") return child;
 		}
@@ -234,5 +239,8 @@ function WavPlayer(_pid,path)
 	}
 }
 
+
 var wp = new WavPlayer("haxe","_lib/wavplayer/");
 window.wp = wp;
+
+wp.init();

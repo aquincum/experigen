@@ -9,7 +9,7 @@
  * methods of each {@link Experigen.trial}. It just adds the {@link makeVAS} function as
  * a member method of each screen.
  */
-Experigen.addScreenPlugin(function(trial){
+Experigen.addScreenPlugin(function (trial){
 
 	/**
 	 * This function will actually be a member of an {@link Experigen.trial}.
@@ -28,7 +28,7 @@ Experigen.addScreenPlugin(function(trial){
 		var newvas = new VAS(width, height, Experigen.screen().responses, this.vases.length, obj);
 		this.vases.push(newvas);
 		return newvas.html();
-	}
+	};
 
 	/**
 	 * A visual analog scale.
@@ -43,11 +43,12 @@ Experigen.addScreenPlugin(function(trial){
 	 * @param [obj.innerwidth=5% of width] The width of the inner slider
 	 * @param [obj.innerpic=null] If specified, the given picture will be used as the background for the slider
 	 * @param [obj.outerpic=null] If specified, the given picture will be used as the background for the outer scale
-	 */
+	 * @param [obj.edgelabels=['']] If specified, edge labels will be displayed
+o	 */
 	var VAS = function(width, height, response_no, vas_no, obj){
 		var that = this;
 		this.width = width;
-		this.height = height
+		this.height = height;
 		this.n = response_no;
 		this.vasn = vas_no;
 		var paramsobj = obj || {};
@@ -56,6 +57,7 @@ Experigen.addScreenPlugin(function(trial){
 		this.innerwidth = paramsobj.innerwidth || (width * 0.05);
 		this.innerpic = paramsobj.innerpic || null;
 		this.outerpic = paramsobj.outerpic || null;
+		this.edgelabels = paramsobj.edgelabels || [''];
 		this.dragmode = false;
 		this.savedmove = function(){};
 		this.savedup = function(){};
@@ -66,7 +68,8 @@ Experigen.addScreenPlugin(function(trial){
 		 * @returns the HTML
 		 */
 		this.html = function(){
-			var str = "<div class='vas' id='vas" + that.vasn + "' ";
+			var str = "<div class='scaleWrapper'><div class='scaleEdgeLabel'>"+that.edgelabels[0]+"</div>";
+			str += "<div class='vas' id='vas" + that.vasn + "' ";
 			str += "style='";
 			str += "width:"+ that.width + "px;";
 			str += "height:"+ that.height + "px;";
@@ -74,6 +77,8 @@ Experigen.addScreenPlugin(function(trial){
 				str += 'background-image:url("' + that.innerpic + '");';
 			str += "background-color:" + that.outercolor + ";";			
 			str += "border: solid " + that.borderwidth + "px #aaa;";
+			str += "display: inline-flex;"
+			str += "margin-left: auto; margin-right: auto;"
 			str += "'><div class='clickedvas'";
 			str += "onmousedown='e = event || window.event;Experigen.screen().vases[" + that.vasn + "].innermousedown(e)' ";
 			str += "onmousemove='e = event || window.event;Experigen.screen().vases[" + that.vasn + "].innermousemove(e)' ";
@@ -85,14 +90,14 @@ Experigen.addScreenPlugin(function(trial){
 			str += "background-color:" + that.innercolor + ";";
 			str += "height:"+ that.height+"px;";
 			str += "cursor:pointer;";
-			str += "position:absolute;";
+			str += "position:relative;";
 			str += "left:" + (that.width/2-that.innerwidth/2) + "px;";
 			str += "'>";
-			str += "</div></div>";
+			str += "</div></div><div class='scaleEdgeLabel'>" + that.edgelabels[that.edgelabels.length-1] + "</div></div><p></p>";
 			str += "<input type='hidden' name='response" +that.n+ "' value=0.5>";
 			that.load();
 			return str;
-		}
+		};
 
 		/**
 		 * Event handler for clicks.
@@ -111,30 +116,30 @@ Experigen.addScreenPlugin(function(trial){
 			$myinner.offset({left: resultingleft, top: outertop+that.borderwidth}); // repositions the inner div
 			var perc = (resultingleft-outerleft)/(that.width - halfwidth*2); // the percentage
 			document.forms["currentform"]["response"+that.n].value = perc.toString(); // setting the hidden response variable to the percentage. This will be sent to the server.
-		}
+		};
 
 		this.innermousedown = function(event){
 			that.dragmode = true; // we are dragged!
 			that.innerclicked(event);
-		}
+		};
 		this.innermousemove = function(event){
 			if(that.dragmode) // only move if dragging is happening
 				that.innerclicked(event);
-		}
+		};
 		this.innermouseup = function(event){
 			if(that.dragmode){
 				that.dragmode = false; // cancel dragging
 				that.innerclicked(event);
 			}
-		}
+		};
 		this.load = function(){
 			// we want the whole document to respond to us if dragging is involved, so
 			// we attach event listeners to the document too
 			$(document).mousemove(that.innermousemove);
 			$(document).mouseup(that.innermouseup);
-		}
+		};
 
-	}
+	};
 
 
 
@@ -153,16 +158,16 @@ Experigen.addScreenPlugin(function(trial){
 		$(part).find(".vas").each(function(index){
 			// get the index in vases
 			var n = $(this).attr("id").match(/[0-9]+$/);
-			if(!Experigen.screen().vases[n].clicked){
-				alert("You have not adjusted the visual analog scale.");
-				proceed = false;
+			if(!Experigen.screen().callingPart === $(".trialpartWrapper").length && !Experigen.screen().vases[n].clicked){
+				if(!confirm("You have not adjusted the visual analog scale. Are you sure you want to continue?"))
+					proceed = false;
 			}
 		});
 		if(proceed)
 			return trial.oldAdvance(spec);
 		else
 			return false;
-	}
+	};
 
 });
 
