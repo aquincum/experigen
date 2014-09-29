@@ -116,13 +116,14 @@ Experigen.load = function () {
 	this.progressbar = this.new_progressbar();
 	this.progressbar.initialize();
 
-
 	for(var i = 0, l = Experigen.loadplugins.length; i < l; i++){
-		if(Experigen.loadplugins[i].stopload) {
+		var f = Experigen.loadplugins[i];
+		
+		if(f.stopload) {
 			stopload = true;
 			waiting ++;
 		}
-		Experigen.loadplugins[i](function(){
+		f(function(){
 			if(stopload) waiting --;
 			if(stopload && waiting === 0){
 				that.initialize();
