@@ -39,7 +39,7 @@ var Experigen =  {
 			plugins: "plugins/"
 		},
 
-		plugins: ["abx", "wavhtml5", "presskey", "reportsounderror", "vas_slider"],
+		plugins: ["abx", "presskey", "reportsounderror", "vas_slider", "soundman"],
 	
 		footer: "views/footer.html",
 		missingview: "views/missingview.ejs"
