@@ -759,7 +759,7 @@ Experigen.load = function () {
 
 	this.loadText({destination: "#footer", url: this.settings.footer, wait: true});
 
-	this.progressbar = this.new_progressbar();
+	this.progressbar = new this.New_progressbar(this);
 	this.progressbar.initialize();
 
 	for(var i = 0, l = Experigen.loadplugins.length; i < l; i++){
@@ -899,7 +899,7 @@ Experigen.resource = function (rname) {
 /**
  * Adds one static screen to the experiment. Can be called with simply the view
  * name or with a screen object.
- * @param {Object|String} The screen object or the view file name.
+ * @param obj {Object|String} The screen object or the view file name.
  * @returns Experigen
  */
 Experigen.addStaticScreen = function (obj) {
@@ -945,13 +945,14 @@ Experigen.recordResponse = function (callerbutton) {
 /**
  * The progress bar.
  * @constructor
+ * @param that {Experigen} Experigen
  */
-Experigen.new_progressbar = function () {
+Experigen.New_progressbar = function (that) {
 	
-	var adjust = this.settings.progressbar.adjustWidth || 4;
-	var visible = this.settings.progressbar.visible;
-	var percentage = this.settings.progressbar.percentage;
-	var that = this;
+	var adjust = that.settings.progressbar.adjustWidth || 4;
+	var visible = that.settings.progressbar.visible;
+	var percentage = that.settings.progressbar.percentage;
+	var sectionBreaks = [];
 	
 	/**
 	 * @lends Experigen.new_progressbar.prototype
@@ -966,21 +967,46 @@ Experigen.new_progressbar = function () {
 		},
 		/** Advances the progress bar by one*/
 		advance : function () {
-			if(that.sectionStart === undefined || that.sectionEnd === 0){
-				console.log("Defining big section, n=" + that._screens.length)
-				that.sectionStart = 0;
-				that.sectionEnd = that._screens.length;
+			var min = 0;
+			for(var i = 0, l = sectionBreaks.length; i < l && sectionBreaks[i] <= that.position; i++){
+				min = sectionBreaks[i];
 			}
+
+			// this means we're the last block max => the end.
+			var max = (i === l && min == sectionBreaks[i-1]) ? that._screens.length : sectionBreaks[i];
+			console.log("tp= " + that.position + " min = " + min + " i = " + i + " sb = " + sectionBreaks + " max = " +max);
+			/// _scr.l = 10; sb = [4,7];
+			/// tp = 3 ==> min = 0; i = 1; max = 4
+			/// tp = 6 ==> min = 4; i = 2; max = 7
+			/// tp = 8 ==> min = 7; i = 2; max = 10
+
 		
 			if (visible) {
-				$("#progress_bar_empty").width((that.sectionEnd-that.sectionStart-(that.position+1))*adjust +  "px");
-				$("#progress_bar_full").width((that.position-that.sectionStart+1)*adjust + "px");
+				$("#progress_bar_empty").width((max-min-(that.position+1))*adjust +  "px");
+				$("#progress_bar_full").width((that.position-min+1)*adjust + "px");
 				if (percentage) {
-					$("#progress_text").html( Math.floor(100*(that.position-that.sectionStart+1)/(that.sectionEnd-that.sectionStart)) + "%");
+					$("#progress_text").html( Math.floor(100*(that.position-min+1)/(max-min)) + "%");
 				} else {
-					$("#progress_text").html((that.position-that.sectionStart+1) + "/" + (that.sectionEnd-that.sectionStart));
+					$("#progress_text").html((that.position-min+1) + "/" + (max-min));
 				}
 			}
+		},
+		/**
+		 * Adds a section break for the progress bar. By default, it
+		 * inserts a section break at the end of the screens.
+		 * @param [where=Experigen.position]
+		 * @example
+		 * Experigen.addStaticScreen("intro.ejs");
+		 * Experigen.addBlock(trainingBlock);
+		 * Experigen.progressbar.addSectionBreak();
+		 * Experigen.addStaticScreen("ratingintro.ejs");
+		 * Experigen.addBlock(ratingBlock);
+		 */
+		addSectionBreak : function(where){
+			if(where === undefined){
+				where = Experigen._screens.length;
+			}
+			sectionBreaks.push(where);
 		}
 	}
 };
