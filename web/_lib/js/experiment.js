@@ -326,13 +326,8 @@ Experigen.New_progressbar = function (that) {
 				min = sectionBreaks[i];
 			}
 
-			// this means we're the last block max => the end.
 			var max = (i === l && min == sectionBreaks[i-1]) ? that._screens.length : sectionBreaks[i];
 			console.log("tp= " + that.position + " min = " + min + " i = " + i + " sb = " + sectionBreaks + " max = " +max);
-			/// _scr.l = 10; sb = [4,7];
-			/// tp = 3 ==> min = 0; i = 1; max = 4
-			/// tp = 6 ==> min = 4; i = 2; max = 7
-			/// tp = 8 ==> min = 7; i = 2; max = 10
 
 		
 			if (visible) {
