@@ -320,7 +320,8 @@ Experigen.new_progressbar = function () {
 		},
 		/** Advances the progress bar by one*/
 		advance : function () {
-			if(that.sectionStart == undefined){
+			if(that.sectionStart === undefined || that.sectionEnd === 0){
+				console.log("Defining big section, n=" + that._screens.length)
 				that.sectionStart = 0;
 				that.sectionEnd = that._screens.length;
 			}
