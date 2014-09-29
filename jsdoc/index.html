@@ -28,7 +28,7 @@
     <div class="container-fluid">
       <div class="row-fluid">
           <div class="span4">
-              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#jsonp_url"><i class="icon-globe" style="color: black;"></i> jsonp_url</a></li></ul></div>
           </div>
 
           <div class="span8">
@@ -728,7 +728,7 @@ The functions that generate the experiment parts are here.</p></div>
     
 <header>
     <!--h2>
-    plugins/vas.js
+    plugins/soundman.js
     </h2-->
     
 </header>  
@@ -736,7 +736,7 @@ The functions that generate the experiment parts are here.</p></div>
 <article>
     <div class="container-overview hero-unit">
 	
-	  <h4><a href="vas.js.html">plugins/vas.js</a></h4>
+	  <h4><a href="soundman.js.html">plugins/soundman.js</a></h4>
 	
     
 
@@ -746,7 +746,8 @@ The functions that generate the experiment parts are here.</p></div>
     
     
         
-            <div class="description"><p>An attempt to create visual analog scales</p></div>
+            <div class="description"><p>A plugin that loads the SoundManager, the so far default plugin for 
+MP3 playback</p></div>
         
         
         
@@ -992,7 +993,7 @@ The functions that generate the experiment parts are here.</p></div>
     
     
         
-            <div class="description"><p>The plugin for playing WAV files.</p></div>
+            <div class="description"><p>The plugin for playing WAV files using Flash.</p></div>
         
         
         
@@ -1021,95 +1022,6 @@ The functions that generate the experiment parts are here.</p></div>
     
     
     
-    
-</dl>
-
-        
-        
-    
-    </div>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</article>
-
-</section>  
-
-
-
-
-
-
-
-<section>
-    
-<header>
-    <!--h2>
-    setup/design.js
-    </h2-->
-    
-</header>  
-
-<article>
-    <div class="container-overview hero-unit">
-	
-	  <h4><a href="design.js.html">setup/design.js</a></h4>
-	
-    
-
-    
-
-    
-    
-    
-        
-            <div class="description"><p>Contains the main setup of the experiment, and experiment-specific functions</p></div>
-        
-        
-        
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-todo">To Do:</dt>
-    <dd class="tag-todo">
-        <ul>
-            <li>Clean up functions that do not belong here.</li>
-        </ul>
-    </dd>
     
 </dl>
 
@@ -1146,7 +1058,7 @@ The functions that generate the experiment parts are here.</p></div>
       <footer>
 		Experigen documentation, Daniel Szeredi 2014.
 		<br>
-        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Sun Sep 28 2014 23:23:50 GMT-0400 (EDT)
         <br>
       </footer>
       <script> prettyPrint(); </script>

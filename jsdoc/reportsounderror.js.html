@@ -28,7 +28,7 @@
     <div class="container-fluid">
       <div class="row-fluid">
           <div class="span4">
-              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#jsonp_url"><i class="icon-globe" style="color: black;"></i> jsonp_url</a></li></ul></div>
           </div>
 
           <div class="span8">
@@ -50,9 +50,10 @@
  * Experigen.settings.pluginsettings.reportsounderror
  * @param trial
  */
-addRSE = function(trial){
-	
-	append = function(){
+
+
+Experigen.addScreenPlugin(function(trial){
+	var append = function(){
 		if(trial.mo) trial.mo.disconnect();
 		if(trial.soundbuttons.length &lt; 1) return;
 		var s = {};
@@ -61,9 +62,25 @@ addRSE = function(trial){
 				s = Experigen.settings.pluginsettings.reportsounderror;
 		var label = s.label || "Report a problem with the sound file";
 		$("#main").append("&lt;div id='reportsoundproblem' style='text-align: left;display: block; margin:20px;'>&lt;/div>");
-		label = "&lt;input type='button' onclick='reportSoundProblem();' value='" + label + "'>";
+		label = "&lt;input type='button' onclick='Experigen.screen().reportSoundProblem();' value='" + label + "'>";
 		$("#reportsoundproblem").html(label);
 	}
+
+	/**
+	 * Appends a text box to report anything and advances the screen
+	 */
+	var reportSoundProblem = function(){
+		var rep = "&lt;p>Could you explain what the problem is specifically?&lt;/p>&lt;input type='text' name='rspexplain' size='50' value='The sound file did not play.' onfocus='this.value=\"\";'>";
+		rep += "&lt;input type='submit' onclick='Experigen.screen().rspSubmit();return false;'>";
+		$("#reportsoundproblem").html(rep);
+	};
+
+	var rspSubmit = function(){
+		var str = "&lt;input type='hidden' name='soundproblem' value='" + $("input[name='rspexplain']").val() + "'>"; 
+		$("#currentform").append(str);
+		//	$("#reportsoundproblem").remove();
+		Experigen.recordResponse();
+	};
 
 	if(MutationObserver){
 		trial.mo = new MutationObserver(append); 
@@ -72,34 +89,15 @@ addRSE = function(trial){
 	else{
 		$("#main").on("DOMNodeInserted", append);
 	}
-}
 
-/**
- * Appends a text box to report anything and advances the screen
-*/
-reportSoundProblem = function(){
-	var rep = "&lt;p>Could you explain what the problem is specifically?&lt;/p>&lt;input type='text' name='rspexplain' size='80' value='The sound file did not play.' onfocus='this.value=\"\";'>";
-	rep += "&lt;input type='submit' onclick='rspSubmit();return false;'>";
-	$("#reportsoundproblem").html(rep);
-}
-
-rspSubmit = function(){
-	var str = "&lt;input type='hidden' name='soundproblem' value='" + $("input[name='rspexplain']").val() + "'>"; 
-	$("#currentform").append(str);
-//	$("#reportsoundproblem").remove();
-	Experigen.recordResponse();
-}
-
-Experigen.addScreenPlugin(function(trial){
-	addRSE(trial);
 	trial.reportSoundProblem = reportSoundProblem;
 	trial.rspSubmit = rspSubmit;
-/*	trial.reportsounderror_saved_advance = trial.advance;
-	trial.advance = function(spec){
+	/*	trial.reportsounderror_saved_advance = trial.advance;
+		trial.advance = function(spec){
 		if (Experigen.screen().currentPart > Experigen.screen().parts.length)
-			$("#reportsoundproblem").remove();
+		$("#reportsoundproblem").remove();
 		return Experigen.screen().reportsounderror_saved_advance(spec);
-	};*/
+		};*/
 });
 </code></pre>
         </article>
@@ -116,7 +114,7 @@ Experigen.addScreenPlugin(function(trial){
       <footer>
 		Experigen documentation, Daniel Szeredi 2014.
 		<br>
-        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Sun Sep 28 2014 23:23:50 GMT-0400 (EDT)
         <br>
       </footer>
       <script> prettyPrint(); </script>

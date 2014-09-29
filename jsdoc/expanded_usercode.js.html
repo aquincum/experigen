@@ -32,134 +32,47 @@
           </div>
 
           <div class="span8">
-              <h1 class="page-header">Global</h1>
+              <h1 class="page-header">Source: plugins/expanded_usercode.js</h1>
               
 
 
 
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/** STILL BUGGY */
 
-<section>
-    
-<header>
-    <!--h2>
-    
-    </h2-->
-    
-</header>  
+if(Experigen.settings.online){
+	var jsonp_url = Experigen.settings.databaseServer + "getuserid.cgi?experimentName=" + Experigen.settings.experimentName  + "&amp;sourceurl=" + encodeURIComponent(window.location.protocol + "//" + window.location.hostname + window.location.pathname); // we get the user ID based from the server
+	innerLoad = function(data){
+		if(Experigen.userFileName === ""){
+			setTimeout(function(){ innerLoad(data); }, 500);
+			return;
+		}
+		Experigen.userFileName = data;
+		
+		var code = "", i, s = {};
+		if (Experigen.settings.pluginsettings)
+			s = Experigen.settings.pluginsettings.expanded_usercode || {};
 
-<article>
-    <div class="container-overview hero-unit">
-	
-    
+		var nChars = s.nChars || 6;
 
-    
+		for(i = 0; i &lt; nChars; i++){
+			code +=  String.fromCharCode(65 + Math.floor(Math.random()*26));
+		}
+		Experigen.userCode = code + Experigen.userFileName;
+		$("input[name='userCode']").val(Experigen.userCode);
+	};
+	$.ajax({
+		dataType: 'jsonp',
+		url: jsonp_url,  
+		success: innerLoad
+	});
+}
 
-    
-    
-    
-        
-        
-        
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-        
-        
-    
-    </div>
-    
-    
-    
-    
-    
-    
-    
-    
-        <h3 class="subsection-title">Members</h3>
-        
-        <dl class="bs-docs-example bs-members">
-            
-<dt>
-    <h4 class="name" id="jsonp_url">jsonp_url<span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        STILL BUGGY
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-        </dl>
-    
-    
-    
-    
-    
-    
-    
-</article>
-
-</section>  
+</code></pre>
+        </article>
+    </section>
 
 
 

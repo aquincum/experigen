@@ -28,7 +28,7 @@
     <div class="container-fluid">
       <div class="row-fluid">
           <div class="span4">
-              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="VAS.html"><i class="icon-shield" style="color: #0186d1"></i> VAS</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Namespaces</li><li><a href="Experigen.html"><i class="icon-code"></i> Experigen</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#addRSE"><i class="icon-globe" style="color: black;"></i> addRSE</a></li><li><a href="global.html#getCookie"><i class="icon-globe" style="color: black;"></i> getCookie</a></li><li><a href="global.html#listscreens"><i class="icon-globe" style="color: black;"></i> listscreens</a></li><li><a href="global.html#makeVAS"><i class="icon-globe" style="color: black;"></i> makeVAS</a></li><li><a href="global.html#playWAVSound"><i class="icon-globe" style="color: black;"></i> playWAVSound</a></li><li><a href="global.html#reportSoundProblem"><i class="icon-globe" style="color: black;"></i> reportSoundProblem</a></li><li><a href="global.html#setCookie"><i class="icon-globe" style="color: black;"></i> setCookie</a></li><li><a href="global.html#ttest"><i class="icon-globe" style="color: black;"></i> ttest</a></li><li><a href="global.html#VASplugin"><i class="icon-globe" style="color: black;"></i> VASplugin</a></li></ul></div>
+              <h2><a href="index.html">Index</a></h2><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Classes</li><li><a href="Array.html"><i class="icon-shield" style="color: #0186d1"></i> Array</a></li><li><a href="Experigen.new_progressbar.html"><i class="icon-shield" style="color: #0186d1"></i> new_progressbar</a></li><li><a href="Experigen.trial.html"><i class="icon-shield" style="color: #0186d1"></i> trial</a></li><li><a href="WavPlayer.html"><i class="icon-shield" style="color: #0186d1"></i> WavPlayer</a></li></ul></div><div class="well well-small"><ul class="nav nav-list"><li class="nav-header">Global</li><li><a href="global.html#jsonp_url"><i class="icon-globe" style="color: black;"></i> jsonp_url</a></li></ul></div>
           </div>
 
           <div class="span8">
@@ -85,8 +85,11 @@ Experigen.resources = [];
 Experigen.position = -1;
 Experigen.initialized = false;
 
-/** {Function[]} Plugin functions that can be loaded from an external plugin js file.*/
+/** {Function[]} Plugin functions available for trials that can be loaded from an external plugin js file.*/
 Experigen.screenplugins = [];
+
+/** {Function[]} Plugin functions that are loaded at {@link Experigen.load}*/
+Experigen.loadplugins = [];
 
 if (Experigen.settings.online===undefined) {
 	Experigen.settings.online = true; // set to true for old settings files
@@ -136,7 +139,9 @@ Experigen.launch = function () {
 
 Experigen.load = function () {
 
-	var that = this;
+	var that = this, 
+	stopload = false,
+	waiting = 0;
 	$("#main").html(this.settings.strings.loading);
 	$(document).attr("title",this.settings.strings.windowTitle);
 
@@ -153,17 +158,23 @@ Experigen.load = function () {
 	this.progressbar = this.new_progressbar();
 	this.progressbar.initialize();
 
-	if (this.settings.audio) {
-
-		soundManager.onready(function() { 
-			if (!that.initialized) {
+	for(var i = 0, l = Experigen.loadplugins.length; i &lt; l; i++){
+		var f = Experigen.loadplugins[i];
+		
+		if(f.stopload) {
+			stopload = true;
+			waiting ++;
+		}
+		f(function(){
+			if(stopload) waiting --;
+			if(stopload &amp;&amp; waiting === 0){
 				that.initialize();
 				that.initialized = true;
 				that.advance();
 			}
 		});
-
-	} else {
+	}
+	if (!stopload) {
 		this.initialize();
 		this.initialized = true;
 		this.advance();
@@ -403,13 +414,27 @@ Experigen.eraseLocalData = function () {
 
 
 /**
- * Adds a plugin to the set of pluginse, which will be available on the screen/trial level.
+ * Adds a plugin to the set of plugins, which will be available on the screen/trial level.
  * These functions will be methods of {@link Experigen.trial}
  * @param pluginfunc {Function} Function of the plugin
  */
 Experigen.addScreenPlugin = function(pluginfunc){
 	Experigen.screenplugins.push(pluginfunc);
-}</code></pre>
+}
+
+/**
+ * Adds a plugin to the set of plugins, which will be run when Experigen is loaded.
+ * Important: the function may take a callback argument that it calls whenever it is 
+ * done loading. If this is the case, the stopload argument should be set true
+ * to stop automatic initialization.
+ * @param pluginfunc {Function} Function of the plugin
+ */
+Experigen.addLoadPlugin = function(pluginfunc, stopload){
+	if(stopload) pluginfunc.stopload = true;
+	Experigen.loadplugins.push(pluginfunc);
+}
+
+</code></pre>
         </article>
     </section>
 
@@ -424,7 +449,7 @@ Experigen.addScreenPlugin = function(pluginfunc){
       <footer>
 		Experigen documentation, Daniel Szeredi 2014.
 		<br>
-        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Tue Jul 08 2014 20:04:31 GMT-0400 (EDT)
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a> on Sun Sep 28 2014 23:23:50 GMT-0400 (EDT)
         <br>
       </footer>
       <script> prettyPrint(); </script>
