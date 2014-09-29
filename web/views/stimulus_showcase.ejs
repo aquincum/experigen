@@ -29,6 +29,13 @@
 </div>
 
 <div class="trialpartWrapper" style="clear:both; text-align: center;">  
+	 How weird was this task?<p>
+	 <%= makeVAS(300,10, {edgelabels: ["super weird", "it's okay"]}) %>
+
+	 <%= continueButton({label: "record response"}) %>
+</div>
+
+<div class="trialpartWrapper" style="clear:both; text-align: center;">  
 	 Can you even differentiate between these two plurals!?
 	 <%= makeABXtriadWAVSoundButton({A: this["file_pl" + order], B: this["file_pl" + (3-order)], X: this["file_pl" + order], label: "Listen to ABX"}) %>
 </div>
