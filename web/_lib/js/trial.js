@@ -37,6 +37,7 @@ Experigen.make_into_trial = function (that) {
 		var parts = $(".trialpartWrapper");
 		var part = "";
 		var spec = spec || {};
+
 		// initial call figures out screen parts
 		if (parts.length && Experigen.screen().callingPart===0) { 
 			Experigen.screen().parts = $(".trialpartWrapper");
@@ -54,6 +55,13 @@ Experigen.make_into_trial = function (that) {
 		}
 		// after initalization:
 		if (parts.length && Experigen.screen().callingPart===Experigen.screen().currentPart) {
+			for(var i = 0; i < Experigen.plugins.length; i++){
+				if(Experigen.plugins[i].onadvance){
+					if(!Experigen.plugins[i].onadvance(Experigen.screen().currentPart === Experigen.screen().parts.length)){
+						return false;
+					}
+				}
+			}
 			// current part
 			part = "#" + "part" + Experigen.screen().currentPart;
 			// does it contain text boxes that shouldn't allowed to be empty?
@@ -88,6 +96,9 @@ Experigen.make_into_trial = function (that) {
 						var str= "<input type='hidden' name='sound" + (i+1) + "' value='" + Experigen.screen().soundbuttons[i].presses + "'>\n";
 						$("#currentform").append(str);
 					}
+
+
+
 					// send the form
 					// enabled all text fields before sending, because disabled elements will not be sent
 					$("#currentform " + 'input[type="text"]').prop("disabled", false)
@@ -165,6 +176,11 @@ Experigen.make_into_trial = function (that) {
 	that.recordResponse = function (scaleNo, buttonNo) {
 		/// make all the necessary fields in document.forms["currentform"],
 		/// and fill them with data
+		for(var i = 0; i < Experigen.plugins.length; i++){
+			if(Experigen.plugins[i].onresponse){
+				Experigen.plugins[i].onresponse(scaleNo,buttonNo);
+			}
+		}
 		if (scaleNo!==undefined && buttonNo!==undefined) {
 			document.forms["currentform"]["response"+scaleNo].value = buttonNo;
 		}
@@ -432,8 +448,9 @@ Experigen.make_into_trial = function (that) {
 	
 
 
-	for(var i = 0; i < Experigen.screenplugins.length; i++){
-		Experigen.screenplugins[i](that);
+	for(var i = 0; i < Experigen.plugins.length; i++){
+		if(Experigen.plugins[i].extendtrial)
+			Experigen.plugins[i].extendtrial(that);
 	}
 
 	return that;

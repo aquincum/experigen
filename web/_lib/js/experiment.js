@@ -43,11 +43,8 @@ Experigen.resources = [];
 Experigen.position = -1;
 Experigen.initialized = false;
 
-/** {Function[]} Plugin functions available for trials that can be loaded from an external plugin js file.*/
-Experigen.screenplugins = [];
-
-/** {Function[]} Plugin functions that are loaded at {@link Experigen.load}*/
-Experigen.loadplugins = [];
+/** {Function[]} Plugin modules that can be loaded from an external plugin js file.*/
+Experigen.plugins = [];
 
 if (Experigen.settings.online===undefined) {
 	Experigen.settings.online = true; // set to true for old settings files
@@ -116,21 +113,23 @@ Experigen.load = function () {
 	this.progressbar = new this.New_progressbar(this);
 	this.progressbar.initialize();
 
-	for(var i = 0, l = Experigen.loadplugins.length; i < l; i++){
-		var f = Experigen.loadplugins[i];
-		
-		if(f.stopload) {
-			stopload = true;
-			waiting ++;
-		}
-		f(function(){
-			if(stopload) waiting --;
-			if(stopload && waiting === 0){
-				that.initialize();
-				that.initialized = true;
-				that.advance();
+	for(var i = 0, l = Experigen.plugins.length; i < l; i++){
+		if(Experigen.plugins[i].onload){
+			var f = Experigen.plugins[i].onload;
+			
+			if(Experigen.plugins[i].stopload) {
+				stopload = true;
+				waiting ++;
 			}
-		});
+			f(function(){
+				if(stopload) waiting --;
+				if(stopload && waiting === 0){
+					that.initialize();
+					that.initialized = true;
+					that.advance();
+				}
+			});
+		}
 	}
 	if (!stopload) {
 		this.initialize();
@@ -393,22 +392,23 @@ Experigen.eraseLocalData = function () {
 
 /**
  * Adds a plugin to the set of plugins, which will be available on the screen/trial level.
- * These functions will be methods of {@link Experigen.trial}
- * @param pluginfunc {Function} Function of the plugin
+ * @param plugin {Function} A plugin with the following methods available: extendtrial, onload,
+ * onadvance, onresponse
+ * @param [plugin.extendtrial] {Function} A function called at the creation of a {@link Experigen.trial}.
+ * You can define functions here that will be available from the trial. Its one argument is the trial
+ * object to be extended.
+ * @param [plugin.onload] {Function} A function called at the loading of the experiment. Its argument
+ * is a callback function that it calls after finishing.
+ * @param [plugin.onadvance] {Function} A function called at each Experigen.advance. Its one argument is
+ * a boolean that tells you whether it's the final advance on the screen (before sending data) or not.
+ * Returns a boolean: if it returns false, the advancement will be stopped.
+ * @param [plugin.onresponse] {Function} A function called at the response to a scale. Its arguments,
+ * scaleNo and buttonNo are shared with {@link Experigen.trial.recordResponse}.
+ * @param [plugin.stopload] {boolean} If set to true, the loading of the experiment will be stopped
+ * while the onload part of the plugin is loading (until the callback returns).
  */
-Experigen.addScreenPlugin = function(pluginfunc){
-	Experigen.screenplugins.push(pluginfunc);
+Experigen.registerPlugin = function(plugin){
+	Experigen.plugins.push(plugin);
 }
 
-/**
- * Adds a plugin to the set of plugins, which will be run when Experigen is loaded.
- * Important: the function may take a callback argument that it calls whenever it is 
- * done loading. If this is the case, the stopload argument should be set true
- * to stop automatic initialization.
- * @param pluginfunc {Function} Function of the plugin
- */
-Experigen.addLoadPlugin = function(pluginfunc, stopload){
-	if(stopload) pluginfunc.stopload = true;
-	Experigen.loadplugins.push(pluginfunc);
-}
 
