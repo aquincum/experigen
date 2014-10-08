@@ -39,7 +39,7 @@ Experigen.make_into_trial = function (that) {
 		var spec = spec || {};
 
 		// initial call figures out screen parts
-		if (parts.length && Experigen.screen().callingPart===0) { 
+		if (parts.length && Experigen.screen().callingPart===0) {
 			Experigen.screen().parts = $(".trialpartWrapper");
 			var haveIDs = true; // check that all wrappers have ID's
 			// to do: check that they are "part" + number w/o skipping
@@ -79,16 +79,17 @@ Experigen.make_into_trial = function (that) {
 				}
 				// now advance and show next part, or advance to next screen
 				Experigen.screen().currentPart += 1;
+
 				if (Experigen.screen().currentPart > Experigen.screen().parts.length) {
-					
+
 					// add all require data to the current form
 					for (i in Experigen.fieldsToSave) {
 						var str = "";
 						//console.log(i + ": " + typeof Experigen.screen()[i]);
 						if (typeof Experigen.screen()[i] === "object") {
-							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i][Experigen.resources[i+"s"].key] + "'>"; 
+							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i][Experigen.resources[i+"s"].key] + "'>";
 						} else {
-							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i] + "'>"; 
+							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i] + "'>";
 						}
 						$("#currentform").append(str);
 					}
@@ -98,16 +99,17 @@ Experigen.make_into_trial = function (that) {
 					}
 
 
-
 					// send the form
 					// enabled all text fields before sending, because disabled elements will not be sent
 					$("#currentform " + 'input[type="text"]').prop("disabled", false)
 					Experigen.sendForm($("#currentform"));
+
 					Experigen.advance();
 				} else {
 					// show next part
 					part = "#" + "part" + Experigen.screen().currentPart;
 					$(part).show();
+
 					// give focus to the first form object inside, if any
 					$(part).find(':input[type!="hidden"][class!="scaleButton"]').first().focus();
 				}
@@ -174,6 +176,7 @@ Experigen.make_into_trial = function (that) {
 	 * @param buttonNo The value of the button to save
 	 */
 	that.recordResponse = function (scaleNo, buttonNo) {
+
 		/// make all the necessary fields in document.forms["currentform"],
 		/// and fill them with data
 		for(var i = 0; i < Experigen.plugins.length; i++){
@@ -214,7 +217,6 @@ Experigen.make_into_trial = function (that) {
 		return comingFrom;
 	}
 
-	
 	/** 
 	 * Inserts a text input to the DOM and to the Experigen.trial model.
 	 * @method
@@ -234,7 +236,7 @@ Experigen.make_into_trial = function (that) {
 	that.makeTextInput = function (obj) {
 
 		Experigen.screen().responses++;
-	
+
 		if (typeof obj==="string") {
 			obj = {initValue: obj}
 		}
@@ -259,7 +261,7 @@ Experigen.make_into_trial = function (that) {
 			classNames.push("textInputDisable");
 		}
 		str += "class='" + classNames.join(" ") + "' ";
-		
+
 		if (obj.style) {
 			str += "style='" + obj.style + "' ";
 		}
@@ -323,7 +325,7 @@ Experigen.make_into_trial = function (that) {
 	 * @param [obj.src] {String} The source of the picture, as a file name.
 	 */
 	that.makePicture = function (obj) {
-	
+
 		if (typeof obj==="string") {
 			obj = {src: obj}
 		}
@@ -334,7 +336,7 @@ Experigen.make_into_trial = function (that) {
 			obj.src = ""; // Fixed typos
 		}
 		obj.src = Experigen.settings.folders.pictures + obj.src;
-	
+
 		var str = "";
 		str += "<img ";
 		if (obj.src) {
@@ -371,7 +373,7 @@ Experigen.make_into_trial = function (that) {
 			str += "onchange='" + obj.onchange + "' ";
 		}
 		str += ">";
-		return str;	
+		return str;
 	}
 
 	/**
@@ -425,7 +427,7 @@ Experigen.make_into_trial = function (that) {
 		if (obj.disable===true) {
 			spec.push("disable:true");
 		}
-		spec = spec.length ? ",{" + spec.join(",") + "}" : "";		
+		spec = spec.length ? ",{" + spec.join(",") + "}" : "";
 		str += 'onClick="Experigen.screen().continueButtonClick(this' + spec + ');">'
 		return str
 	}
@@ -443,15 +445,13 @@ Experigen.make_into_trial = function (that) {
 		} else {
 			Experigen.advance(caller);
 		}
-	
-	}
-	
 
+	}
 
 	for(var i = 0; i < Experigen.plugins.length; i++){
 		if(Experigen.plugins[i].extendtrial)
 			Experigen.plugins[i].extendtrial(that);
 	}
-
+	
 	return that;
 }

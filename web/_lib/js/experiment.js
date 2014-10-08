@@ -42,6 +42,7 @@ Experigen.resources = [];
 /** {Number} The index of the current screen in the experiment.*/
 Experigen.position = -1;
 Experigen.initialized = false;
+Experigen.trackTimes = false;
 
 /** {Function[]} Plugin modules that can be loaded from an external plugin js file.*/
 Experigen.plugins = [];
@@ -66,9 +67,9 @@ Experigen.launch = function () {
 
 	$(document).ready(function(){
 		$('body').append('<div id="mainwrapper"><div id="main">' + that.settings.strings.connecting + '</div></div><div id="footer"></div>');
-		that.loadUserID();		
+		that.loadUserID();
 
-		// prepare to catch the return key when 
+		// prepare to catch the return key when
 		// the participant is typing in a textbox
 		// (which would naturally be focused)
 		$.expr[':'].focus = function(a){ return (a == document.activeElement); }
@@ -105,7 +106,7 @@ Experigen.load = function () {
 	this.fieldsToSave["trialnumber"] = true;
 
 	for (var resource in this.settings.otherresources) {
-		this.resources[resource] = this.loadResource(this.settings.otherresources[resource]); 
+		this.resources[resource] = this.loadResource(this.settings.otherresources[resource]);
 	}
 
 	this.loadText({destination: "#footer", url: this.settings.footer, wait: true});
@@ -138,7 +139,6 @@ Experigen.load = function () {
 	}
 }
 
-
 /**
  * Loads the next screen. This function calls screen.advance() for the first time.
  * @param callerButton The button that called the advance.
@@ -167,8 +167,8 @@ Experigen.advance = function(callerButton) {
 
 	if (callerButton) callerButton.disabled = true;
 	this.position++;
-	this.progressbar.advance(); 
-	
+	this.progressbar.advance();
+
 	var screen = this.screen();
 
 	// the call to make_into_trial
@@ -176,11 +176,11 @@ Experigen.advance = function(callerButton) {
 
 	switch (screen.screentype) {
 		case this.STATIC:
-			
+
 			var fileType = screen.url.match(/\.[a-zA-Z]+$/);
 			if (fileType) { fileType = fileType[0]; };
 			switch (fileType) {
-			
+
 				case ".html":
 					$.get(screen.url, function(data) {
 						$("#main").html(prefix + data + suffix);
@@ -188,7 +188,7 @@ Experigen.advance = function(callerButton) {
 					});
 					screen.advance();
 					break;
-				
+
 				case ".ejs":
 					html = new EJS({url: screen.url}).render(screen);
 					$("#main").html(prefix + html + suffix);
@@ -198,10 +198,10 @@ Experigen.advance = function(callerButton) {
 
 				default:
 					$("#main").html(this.settings.strings.errorMessage);
-			
+
 			}
 			break;
-			
+
 		case this.TRIAL:
 			if (screen.view) {
 				html = new EJS({url: this.settings.folders.views + screen.view}).render(screen);
@@ -232,7 +232,7 @@ Experigen.addBlock = function (arr) {
 	for (var i=0 ; i<arr.length ; i++) {
 		arr[i].trialnumber = this._screens.length+1;
 		arr[i].screentype = this.TRIAL;
-		this._screens.push(arr[i]);	
+		this._screens.push(arr[i]);
 	}
 	return this;
 }
@@ -258,11 +258,11 @@ Experigen.resource = function (rname) {
 Experigen.addStaticScreen = function (obj) {
 
 	if (typeof obj=="string") {
-		obj = {url: this.settings.folders.views + obj};	
+		obj = {url: this.settings.folders.views + obj};
 	}
 	obj.screentype = this.STATIC;
 	obj.trialnumber = this._screens.length+1;
-	this._screens.push(obj);	
+	this._screens.push(obj);
 
 	return this;
 }
@@ -357,7 +357,6 @@ Experigen.New_progressbar = function (that) {
 	}
 };
 
-
 Experigen.manageLocalData = function () {
 
 	var html = '<div id="localStorageAccess" style="position:absolute; bottom: 0px; left: 0px; cursor:pointer;" onClick="$(\'#localStorageInterface\').toggle()">O</div>';
@@ -410,5 +409,4 @@ Experigen.eraseLocalData = function () {
 Experigen.registerPlugin = function(plugin){
 	Experigen.plugins.push(plugin);
 }
-
 

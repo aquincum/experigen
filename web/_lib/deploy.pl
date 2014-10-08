@@ -18,6 +18,7 @@ push(@{$inputfile[0]}, "ejs/ejs_production.js");
 push(@{$inputfile[0]}, "js/array.js");
 
 $inputfile[1] = [];
+push(@{$inputfile[1]}, "js/timerModule.js");
 push(@{$inputfile[1]}, "js/trial.js");
 push(@{$inputfile[1]}, "js/dataconnection.js");
 push(@{$inputfile[1]}, "js/experiment.js");
