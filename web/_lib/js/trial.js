@@ -81,29 +81,8 @@ Experigen.make_into_trial = function (that) {
 				Experigen.screen().currentPart += 1;
 
 				if (Experigen.screen().currentPart > Experigen.screen().parts.length) {
-
-					// add all require data to the current form
-					for (i in Experigen.fieldsToSave) {
-						var str = "";
-						//console.log(i + ": " + typeof Experigen.screen()[i]);
-						if (typeof Experigen.screen()[i] === "object") {
-							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i][Experigen.resources[i+"s"].key] + "'>";
-						} else {
-							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i] + "'>";
-						}
-						$("#currentform").append(str);
-					}
-					for (var i=0; i<Experigen.screen().soundbuttons.length; i+=1) {
-						var str= "<input type='hidden' name='sound" + (i+1) + "' value='" + Experigen.screen().soundbuttons[i].presses + "'>\n";
-						$("#currentform").append(str);
-					}
-
-
-					// send the form
-					// enabled all text fields before sending, because disabled elements will not be sent
-					$("#currentform " + 'input[type="text"]').prop("disabled", false)
+					Experigen.screen().fillOutForm();
 					Experigen.sendForm($("#currentform"));
-
 					Experigen.advance();
 				} else {
 					// show next part
@@ -116,6 +95,33 @@ Experigen.make_into_trial = function (that) {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Fills out the hidden fields in the form with the data needed by {@link Experigen.fieldsToSave}
+	 * @method
+	 * @memberof Experigen.trial
+	 */
+	that.fillOutForm(){
+		for (i in Experigen.fieldsToSave) {
+			var str = "";
+			//console.log(i + ": " + typeof Experigen.screen()[i]);
+			if (typeof Experigen.screen()[i] === "object") {
+				str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i][Experigen.resources[i+"s"].key] + "'>";
+			} else {
+				str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i] + "'>";
+			}
+			$("#currentform").append(str);
+		}
+		for (var i=0; i<Experigen.screen().soundbuttons.length; i+=1) {
+			var str= "<input type='hidden' name='sound" + (i+1) + "' value='" + Experigen.screen().soundbuttons[i].presses + "'>\n";
+			$("#currentform").append(str);
+		}
+
+
+		// send the form
+		// enabled all text fields before sending, because disabled elements will not be sent
+		$("#currentform " + 'input[type="text"]').prop("disabled", false)
 	}
 
 	/** 

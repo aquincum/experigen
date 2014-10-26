@@ -47,7 +47,7 @@ Experigen.make_into_trial = function (that) {
 		var spec = spec || {};
 
 		// initial call figures out screen parts
-		if (parts.length && Experigen.screen().callingPart===0) { 
+		if (parts.length && Experigen.screen().callingPart===0) {
 			Experigen.screen().parts = $(".trialpartWrapper");
 			var haveIDs = true; // check that all wrappers have ID's
 			// to do: check that they are "part" + number w/o skipping
@@ -87,41 +87,49 @@ Experigen.make_into_trial = function (that) {
 				}
 				// now advance and show next part, or advance to next screen
 				Experigen.screen().currentPart += 1;
+
 				if (Experigen.screen().currentPart > Experigen.screen().parts.length) {
-					
-					// add all require data to the current form
-					for (i in Experigen.fieldsToSave) {
-						var str = "";
-						//console.log(i + ": " + typeof Experigen.screen()[i]);
-						if (typeof Experigen.screen()[i] === "object") {
-							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i][Experigen.resources[i+"s"].key] + "'>"; 
-						} else {
-							str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i] + "'>"; 
-						}
-						$("#currentform").append(str);
-					}
-					for (var i=0; i<Experigen.screen().soundbuttons.length; i+=1) {
-						var str= "<input type='hidden' name='sound" + (i+1) + "' value='" + Experigen.screen().soundbuttons[i].presses + "'>\n";
-						$("#currentform").append(str);
-					}
-
-
-
-					// send the form
-					// enabled all text fields before sending, because disabled elements will not be sent
-					$("#currentform " + 'input[type="text"]').prop("disabled", false)
+					Experigen.screen().fillOutForm();
 					Experigen.sendForm($("#currentform"));
 					Experigen.advance();
 				} else {
 					// show next part
 					part = "#" + "part" + Experigen.screen().currentPart;
 					$(part).show();
+
 					// give focus to the first form object inside, if any
 					$(part).find(':input[type!="hidden"][class!="scaleButton"]').first().focus();
 				}
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Fills out the hidden fields in the form with the data needed by {@link Experigen.fieldsToSave}
+	 * @method
+	 * @memberof Experigen.trial
+	 */
+	that.fillOutForm(){
+		for (i in Experigen.fieldsToSave) {
+			var str = "";
+			//console.log(i + ": " + typeof Experigen.screen()[i]);
+			if (typeof Experigen.screen()[i] === "object") {
+				str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i][Experigen.resources[i+"s"].key] + "'>";
+			} else {
+				str = "<input type='hidden' name='" + i + "' value='" + Experigen.screen()[i] + "'>";
+			}
+			$("#currentform").append(str);
+		}
+		for (var i=0; i<Experigen.screen().soundbuttons.length; i+=1) {
+			var str= "<input type='hidden' name='sound" + (i+1) + "' value='" + Experigen.screen().soundbuttons[i].presses + "'>\n";
+			$("#currentform").append(str);
+		}
+
+
+		// send the form
+		// enabled all text fields before sending, because disabled elements will not be sent
+		$("#currentform " + 'input[type="text"]').prop("disabled", false)
 	}
 
 	/** 
@@ -182,6 +190,7 @@ Experigen.make_into_trial = function (that) {
 	 * @param buttonNo The value of the button to save
 	 */
 	that.recordResponse = function (scaleNo, buttonNo) {
+
 		/// make all the necessary fields in document.forms["currentform"],
 		/// and fill them with data
 		for(var i = 0; i < Experigen.plugins.length; i++){
@@ -222,7 +231,6 @@ Experigen.make_into_trial = function (that) {
 		return comingFrom;
 	}
 
-	
 	/** 
 	 * Inserts a text input to the DOM and to the Experigen.trial model.
 	 * @method
@@ -242,7 +250,7 @@ Experigen.make_into_trial = function (that) {
 	that.makeTextInput = function (obj) {
 
 		Experigen.screen().responses++;
-	
+
 		if (typeof obj==="string") {
 			obj = {initValue: obj}
 		}
@@ -267,7 +275,7 @@ Experigen.make_into_trial = function (that) {
 			classNames.push("textInputDisable");
 		}
 		str += "class='" + classNames.join(" ") + "' ";
-		
+
 		if (obj.style) {
 			str += "style='" + obj.style + "' ";
 		}
@@ -331,7 +339,7 @@ Experigen.make_into_trial = function (that) {
 	 * @param [obj.src] {String} The source of the picture, as a file name.
 	 */
 	that.makePicture = function (obj) {
-	
+
 		if (typeof obj==="string") {
 			obj = {src: obj}
 		}
@@ -342,7 +350,7 @@ Experigen.make_into_trial = function (that) {
 			obj.src = ""; // Fixed typos
 		}
 		obj.src = Experigen.settings.folders.pictures + obj.src;
-	
+
 		var str = "";
 		str += "<img ";
 		if (obj.src) {
@@ -379,7 +387,7 @@ Experigen.make_into_trial = function (that) {
 			str += "onchange='" + obj.onchange + "' ";
 		}
 		str += ">";
-		return str;	
+		return str;
 	}
 
 	/**
@@ -433,7 +441,7 @@ Experigen.make_into_trial = function (that) {
 		if (obj.disable===true) {
 			spec.push("disable:true");
 		}
-		spec = spec.length ? ",{" + spec.join(",") + "}" : "";		
+		spec = spec.length ? ",{" + spec.join(",") + "}" : "";
 		str += 'onClick="Experigen.screen().continueButtonClick(this' + spec + ');">'
 		return str
 	}
@@ -451,16 +459,14 @@ Experigen.make_into_trial = function (that) {
 		} else {
 			Experigen.advance(caller);
 		}
-	
-	}
-	
 
+	}
 
 	for(var i = 0; i < Experigen.plugins.length; i++){
 		if(Experigen.plugins[i].extendtrial)
 			Experigen.plugins[i].extendtrial(that);
 	}
-
+	
 	return that;
 }
 
@@ -707,6 +713,7 @@ Experigen.resources = [];
 /** {Number} The index of the current screen in the experiment.*/
 Experigen.position = -1;
 Experigen.initialized = false;
+Experigen.trackTimes = false;
 
 /** {Function[]} Plugin modules that can be loaded from an external plugin js file.*/
 Experigen.plugins = [];
@@ -731,9 +738,9 @@ Experigen.launch = function () {
 
 	$(document).ready(function(){
 		$('body').append('<div id="mainwrapper"><div id="main">' + that.settings.strings.connecting + '</div></div><div id="footer"></div>');
-		that.loadUserID();		
+		that.loadUserID();
 
-		// prepare to catch the return key when 
+		// prepare to catch the return key when
 		// the participant is typing in a textbox
 		// (which would naturally be focused)
 		$.expr[':'].focus = function(a){ return (a == document.activeElement); }
@@ -770,7 +777,7 @@ Experigen.load = function () {
 	this.fieldsToSave["trialnumber"] = true;
 
 	for (var resource in this.settings.otherresources) {
-		this.resources[resource] = this.loadResource(this.settings.otherresources[resource]); 
+		this.resources[resource] = this.loadResource(this.settings.otherresources[resource]);
 	}
 
 	this.loadText({destination: "#footer", url: this.settings.footer, wait: true});
@@ -803,7 +810,6 @@ Experigen.load = function () {
 	}
 }
 
-
 /**
  * Loads the next screen. This function calls screen.advance() for the first time.
  * @param callerButton The button that called the advance.
@@ -832,8 +838,8 @@ Experigen.advance = function(callerButton) {
 
 	if (callerButton) callerButton.disabled = true;
 	this.position++;
-	this.progressbar.advance(); 
-	
+	this.progressbar.advance();
+
 	var screen = this.screen();
 
 	// the call to make_into_trial
@@ -841,11 +847,11 @@ Experigen.advance = function(callerButton) {
 
 	switch (screen.screentype) {
 		case this.STATIC:
-			
+
 			var fileType = screen.url.match(/\.[a-zA-Z]+$/);
 			if (fileType) { fileType = fileType[0]; };
 			switch (fileType) {
-			
+
 				case ".html":
 					$.get(screen.url, function(data) {
 						$("#main").html(prefix + data + suffix);
@@ -853,7 +859,7 @@ Experigen.advance = function(callerButton) {
 					});
 					screen.advance();
 					break;
-				
+
 				case ".ejs":
 					html = new EJS({url: screen.url}).render(screen);
 					$("#main").html(prefix + html + suffix);
@@ -863,10 +869,10 @@ Experigen.advance = function(callerButton) {
 
 				default:
 					$("#main").html(this.settings.strings.errorMessage);
-			
+
 			}
 			break;
-			
+
 		case this.TRIAL:
 			if (screen.view) {
 				html = new EJS({url: this.settings.folders.views + screen.view}).render(screen);
@@ -897,7 +903,7 @@ Experigen.addBlock = function (arr) {
 	for (var i=0 ; i<arr.length ; i++) {
 		arr[i].trialnumber = this._screens.length+1;
 		arr[i].screentype = this.TRIAL;
-		this._screens.push(arr[i]);	
+		this._screens.push(arr[i]);
 	}
 	return this;
 }
@@ -923,11 +929,11 @@ Experigen.resource = function (rname) {
 Experigen.addStaticScreen = function (obj) {
 
 	if (typeof obj=="string") {
-		obj = {url: this.settings.folders.views + obj};	
+		obj = {url: this.settings.folders.views + obj};
 	}
 	obj.screentype = this.STATIC;
 	obj.trialnumber = this._screens.length+1;
-	this._screens.push(obj);	
+	this._screens.push(obj);
 
 	return this;
 }
@@ -1022,7 +1028,6 @@ Experigen.New_progressbar = function (that) {
 	}
 };
 
-
 Experigen.manageLocalData = function () {
 
 	var html = '<div id="localStorageAccess" style="position:absolute; bottom: 0px; left: 0px; cursor:pointer;" onClick="$(\'#localStorageInterface\').toggle()">O</div>';
@@ -1075,7 +1080,6 @@ Experigen.eraseLocalData = function () {
 Experigen.registerPlugin = function(plugin){
 	Experigen.plugins.push(plugin);
 }
-
 
 
 
