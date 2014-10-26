@@ -37,6 +37,7 @@ Experigen.registerPlugin({
 			var str = "<input type='hidden' name='soundproblem' value='" + $("input[name='rspexplain']").val() + "'>"; 
 			$("#currentform").append(str);
 			//	$("#reportsoundproblem").remove();
+			Experigen.screen().fillOutForm();
 			Experigen.recordResponse();
 		};
 
