@@ -110,7 +110,7 @@ Experigen.make_into_trial = function (that) {
 	 * @method
 	 * @memberof Experigen.trial
 	 */
-	that.fillOutForm(){
+	that.fillOutForm = function(){
 		for (i in Experigen.fieldsToSave) {
 			var str = "";
 			//console.log(i + ": " + typeof Experigen.screen()[i]);
