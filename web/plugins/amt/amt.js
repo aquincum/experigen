@@ -4,12 +4,12 @@
  */
 $.getScript("_lib/amt/hmac-sha1.js", function () {
 	$.getScript("_lib/amt/enc-base64-min.js", function () {
-
 		Experigen.registerPlugin({
 			onload: function(callback) {
 				Experigen.AMT = {
 					pipe: "http://pipes.yahoo.com/pipes/pipe.run?_id=c56aace2b039989e4445a943ef10cd5c",
-					sendRequest: function(request, innercb){
+					sendRequest: function(request, innercb, n){
+						if(n === undefined) n = 30;
 						request["AWSAccessKeyId"] = Experigen.AMT.accessKey;
 						request["Version"] = "2014-08-15";
 						var now = new Date();
@@ -24,6 +24,16 @@ $.getScript("_lib/amt/hmac-sha1.js", function () {
 							}
 						}
 						console.log(url);
+						var failresponse = function(err){
+							if(n > 0){
+								Experigen.AMT.sendRequest(request, innercb, n - 1);
+							}
+							else {
+								console.log("Error sending request to AMT: " + err);
+								innercb(err);
+							}
+
+						}
 						$.ajax(Experigen.AMT.pipe, {
 							data: {awsURL: url, _render: "json"}, 
 							dataType: "jsonp",
@@ -31,16 +41,28 @@ $.getScript("_lib/amt/hmac-sha1.js", function () {
 							crossDomain: true, 
 							xhrFields: {"withCredentials":true}
 						}).done(function(result){
-							innercb(result.value.items[0]);
+							if(result.value.items[0].OperationRequest.Errors){
+								failresponse(result.value.items[0].OperationRequest.Errors.Error.Message);
+							}
+							else {
+								innercb(result.value.items[0]);
+							}
 						}).fail(function(jx, stat, err){
-							console.log("Error sending request to AMT: " + stat + ", " + err);
+							failresponse(stat + ", " + err);
 						});
 
 					},
 					
 					sign: function(request){
-						var hmac = Experigen.AMT.prehashed;
-						hmac.update("AWSMechanicalTurkRequester" + request["Operation"] + request["Timestamp"]);
+						var pre = Experigen.AMT.prehashed;
+						var hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA1, "unused");
+						hmac._iKey.words = pre._iKey.words.slice();
+						hmac._iKey.sigBytes = pre._iKey.sigBytes;
+						hmac._oKey.words = pre._oKey.words.slice();
+						hmac._oKey.sigBytes = pre._oKey.sigBytes;
+						hmac._hasher._hash.words = pre._hasher._hash.words.slice();
+						hmac._hasher._hash.sigBytes = pre._hasher._hash.sigBytes;
+						hmac = hmac.update("AWSMechanicalTurkRequester" + request["Operation"] + request["Timestamp"]);
 						return CryptoJS.enc.Base64.stringify(hmac.finalize());
 					}
 					
@@ -48,15 +70,7 @@ $.getScript("_lib/amt/hmac-sha1.js", function () {
 				$.ajax("plugins/amt/amtsettings.js", 
 					   {dataType: "json"})
 					.done(function(result){
-						var pre = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA1, "unused");
-						pre._iKey.words = result._iKey.words;
-						pre._iKey.sigBytes = result._iKey.sigBytes;
-						pre._oKey.words = result._oKey.words;
-						pre._oKey.sigBytes = result._oKey.sigBytes;
-						pre._hasher._hash.words = result._hasher._hash.words;
-						pre._hasher._hash.sigBytes = result._hasher._hash.sigBytes;
-
-						Experigen.AMT.prehashed = pre;
+						Experigen.AMT.prehashed = result;
 						Experigen.AMT.accessKey = result.ak;
 					})
 					.fail(function(x,stat,err){
