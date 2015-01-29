@@ -15,6 +15,7 @@ $.getScript("../_lib/soundman/script/soundmanager2-nodebug-jsmin.js", function (
 						Experigen.advance();
 					}
 				});
+				if(callback) callback();
 			},
 			stopload: true,
 			extendtrial: function (that){
