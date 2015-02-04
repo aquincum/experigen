@@ -98,7 +98,7 @@ $.getScript("_lib/amt/hmac-sha1.js", function () {
 										  Reason: escape(reason),
 										  UniqueRequestToken: urt
 									}, function jumimuh(result){
-										innercb();
+										innercb(result);
 									});
 					}
 
