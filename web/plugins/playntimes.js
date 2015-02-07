@@ -101,7 +101,7 @@ Experigen.registerPlugin({
 			var soundFile = Experigen.settings.folders.sounds + obj.soundFile;
 			var isi = obj.isi || 500;
 			var n = obj.n || 3;
-			obj.soundFile = (aFile+bFile+xFile);
+			obj.soundFile = soundFile
 			var advance = true;
 			if (obj.advance===false) {
 				advance = false;
@@ -112,7 +112,7 @@ Experigen.registerPlugin({
 			str += '<input type="button" ';
 			str += ' id="' + soundID +'"';
 			str += ' value="' + label + '"';
-			str += ' onClick="Experigen.screen().playNTimesWAVSound(\'' + soundID + '\',' + isi + ',' + n + ',' + this);"';
+			str += ' onClick="Experigen.screen().playNTimesWAVSound(\'' + soundID + '\',' + isi + ',' + n + ',' + this + ');"';
 			str += ' onerror="Experigen.screen().handleWAVError;"';
 			str += ' style="margin-left: 10px;"';
 			str += '>';
