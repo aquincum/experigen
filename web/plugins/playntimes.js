@@ -101,7 +101,7 @@ Experigen.registerPlugin({
 			var soundFile = Experigen.settings.folders.sounds + obj.soundFile;
 			var isi = obj.isi || 500;
 			var n = obj.n || 3;
-			obj.soundFile = soundFile
+			obj.soundFile = soundFile;
 			var advance = true;
 			if (obj.advance===false) {
 				advance = false;
@@ -112,12 +112,12 @@ Experigen.registerPlugin({
 			str += '<input type="button" ';
 			str += ' id="' + soundID +'"';
 			str += ' value="' + label + '"';
-			str += ' onClick="Experigen.screen().playNTimesWAVSound(\'' + soundID + '\',' + isi + ',' + n + ',' + this + ');"';
+			str += ' onClick="Experigen.screen().playNTimesWAVSound(\'' + soundID + '\',' + isi + ',' + n + ', this);"';
 			str += ' onerror="Experigen.screen().handleWAVError;"';
 			str += ' style="margin-left: 10px;"';
 			str += '>';
 			str += '<audio src="' + soundFile + '" ';
-			str += 'id="audio' + soundID + 'a" ';
+			str += 'id="audio' + soundID + '" ';
 			str += 'preload="auto" ';
 			str +=  '>';
 			str += '<p>Your browser does not support the <code>audio</code> element.</p>';

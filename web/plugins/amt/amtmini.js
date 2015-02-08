@@ -7,7 +7,7 @@
 Experigen.registerPlugin({
 	onload: function(callback) {
 		Experigen.AMT = {
-			submit: function(extraparams){
+			submit: function(extraparams, innercb){
 				var url = Experigen.AMT.sandbox ?
 					"https://workersandbox.mturk.com/mturk/externalSubmit?" :
 					"https://www.mturk.com/mturk/externalSubmit?";
@@ -19,10 +19,13 @@ Experigen.registerPlugin({
 					type: "POST",
 					data: params
 				}).fail(function(a,b,c){
-					alert("Posting to Amazon Mechanical Turk failed. Try again?");
 					console.log(a,b,c);
+					if (innercb)
+						innercb({error: 1, errorInfo: [a,b,c]});
 				}).done(function(result){
 					console.log("Posting to AMT succeeded. " + result);
+					if (innercb)
+						innercb({error: 0});
 				});
 			},
 		};
