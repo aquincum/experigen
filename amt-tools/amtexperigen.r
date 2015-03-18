@@ -2,6 +2,7 @@ if (!require(MTurkR)){
     install.packages("MTurkR")
     library(MTurkR)
 }
+require(plyr)
 
 # set these below to your credentials and info about the HIT:
 AMT.access_key = ""
@@ -9,6 +10,7 @@ AMT.secret_key = ""
 AMT.url = ""
 AMT.frame_height = 600
 AMT.sandbox = TRUE
+AMT.currentHIT = NULL
 
 options('MTurkR.sandbox' = AMT.sandbox)
 credentials(c(AMT.access_key, AMT.secret_key))
@@ -16,7 +18,7 @@ credentials(c(AMT.access_key, AMT.secret_key))
 # Hiding the patterns to run below in a light library. However,
 # feel free to use MTurkR directly.
 
-AMT.usecredentials = function () {
+AMT.changeCredentials = function () {
     acc = readline("Please enter your AMT access key: ")
     sec = readline("Please enter your AMT secret key: ")
     AMT.access_key = acc
@@ -42,5 +44,41 @@ AMT.createHIT = function () {
     
     # hit now contains the Hit ID. Do not forget to save it some way!
 
+    AMT.currentHIT = hit
     return hit
+}
+
+
+
+
+AMT.killHIT = function(){
+    if(readline("Seriously kill the current hit (yes/no)? ")=="yes"){
+        ExpireHIT(hit = AMT.currentHIT$HITId)
+        DisposeHIT(hit = AMT.currentHIT$HITId)
+    }
+    else {
+        print("Cancelled.")
+    }
+}
+
+
+
+AMT.saveCurrentHIT = function(file = "hitinfo.csv"){
+    write.table(AMT.currentHIT, file = file, sep=",", row.names=FALSE)
+}
+
+AMT.loadCurrentHIT = function(file = "hitinfo.csv") {
+    AMT.currentHIT = read.table(file, header=TRUE, sep=",")
+    return (AMT.currentHIT)
+}
+
+AMT.findWorkersAssignments = function(workerid){
+    hits = SearchHITs()
+    hitids = hits[1]$HITs$HITId
+
+    allinfo = ddply(hits[1]$HITs, .(HITId), function(hitid){
+        return (GetAssignment(hit=hitid$HITId, return.all = TRUE))
+    })
+    
+    return (allinfo[allinfo$WorkerId == workerid,])
 }
