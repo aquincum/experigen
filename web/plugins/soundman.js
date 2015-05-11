@@ -9,11 +9,7 @@ $.getScript("../_lib/soundman/script/soundmanager2-nodebug-jsmin.js", function (
 			onload: function(callback){
 				soundManager.reboot();
 				soundManager.onready(function(){
-					if(!Experigen.initialized){
-						Experigen.initialize();
-						Experigen.initialized = true;
-						Experigen.advance();
-					}
+					if(callback) callback();
 				});
 			},
 			stopload: true,
