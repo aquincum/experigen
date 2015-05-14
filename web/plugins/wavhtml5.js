@@ -62,7 +62,7 @@ Experigen.registerPlugin({
 			str += '<source src="' + soundFile + '">';
 			if(obj.soundFileAlt)
 				str += '<source src="' + obj.soundFileAlt + '">';
-			str += '<p>Your browser does not support the <code>audio</code> element.</p>';
+			//			str += '<p>Your browser does not support the <code>audio</code> element.</p>';
 			str += '</audio>';
 			return str;
 		};
