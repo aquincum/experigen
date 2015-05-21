@@ -127,7 +127,7 @@ Experigen.registerPlugin({
 		};
 		
 		
-		trial.makeWAVSoundButton = makeWAVSoundButton;
+		trial.makeWAVSoundButton = trial.makeSoundButton = makeWAVSoundButton;
 		trial.playWAVSound = playWAVSound;
 		trial.handleWAVError = handleWAVError;
 	}
