@@ -13,11 +13,11 @@
 </div>
 
 <div class="trialpartWrapper" style="float:left; height: 3em; width: 40%;">
-	<%= makeSoundButton({soundFile: file_sg , soundFile2: this["file_pl" + order]}) %>
+	<%= makeNTimesWAVSoundButton({soundFile: [file_sg , this["file_pl" + order]], maxRepeat: 3}) %>
 </div>
 
 <div class="trialpartWrapper" style="float:right; height: 3em; width: 40%;">
-	<%= makeSoundButton({soundFile: file_sg , soundFile2: this["file_pl" + (3-order)]}) %>
+	<%= makeNTimesWAVSoundButton({soundFile: [file_sg , this["file_pl" + (3-order)]]}) %>
 </div>
 
 

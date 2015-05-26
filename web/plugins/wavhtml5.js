@@ -10,11 +10,11 @@ Experigen.registerPlugin({
 		 * @method
 		 * @memberof Experigen.trial
 		 * @param obj {Object|String} A collection of options, or simply the file name of the sound.
-		 * @param [obj.label] {String} The label of the button. By default, thaken from {@link Experigen.settings}.strings.soundButton
+		 * @param [obj.label] {String} The label of the button. By default, taken from {@link Experigen.settings}.strings.soundButton
 		 * @param [obj.soundID] {boolean} An ID for the sound, by default the trial number + rank of the sound.
 		 * @param obj.soundFile {String} The file name of the sound.
 		 * @param [obj.soundFileAlt] {String} The file name of the alternate sound.
-		 * @param [obj.folder] {boolean} The folder to load the sound from.  By default, thaken from {@link Experigen.settings}.folders.sounds
+		 * @param [obj.folder] {boolean} The folder to load the sound from.  By default, taken from {@link Experigen.settings}.folders.sounds
 		 * @param [obj.maxRepeat] {Number} How many times the sound play can be repeated by the subject.
 		 * @param [obj.advance] {boolean} Whether to advance on play.
 		 */
