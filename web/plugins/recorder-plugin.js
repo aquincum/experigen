@@ -3,11 +3,15 @@
  * microphone. The plugin is built around Claire Moore-Cantwell's
  * pre-plugin plugin, which used code by Chris Wilson and Matt
  * Diamond. For more info, see the scripts in recorder/
+ *
+ * There are still problems which have to be discussed when employed
+ * in real life: cross-origin issues, server capability to hold
+ * large amount of data.
 */
 
 // TODO: require.jsify this whole mess
-$.getScript("recorder/recorder.js", function () {
-	$.getScript("recorder/main.js", function(){
+$.getScript("plugins/recorder/recorder.js", function () {
+	$.getScript("plugins/recorder/main.js", function(){
 		Experigen.registerPlugin({
 			onload: function(callback){
 				RecorderMain.initAudio();
@@ -29,7 +33,7 @@ $.getScript("recorder/recorder.js", function () {
 					str += '<p> <input type="button" ';
 					str += ' id="recordButton"';
 					str += ' value="Record"';
-					str += ' onClick=toggleButton('+loc+',"'+filename+'");'
+					str += ' onClick=RecorderMain.toggleButton('+loc+',"'+filename+'");'
 					str += ' class="soundbutton"'
 					str += '> </p>';
 					
@@ -51,7 +55,7 @@ $.getScript("recorder/recorder.js", function () {
 					str += '<p> <input type="button" ';
 					str += ' id="soundCheck"';
 					str += ' value="Begin Sound Check"';
-					str += ' onClick=soundCheckButton('+loc+',"'+filename+'");'
+					str += ' onClick=RecorderMain.soundCheckButton('+loc+',"'+filename+'");'
 					str += ' class="soundbutton"'
 					str += '> </p>';
 					
