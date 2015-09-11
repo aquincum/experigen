@@ -11,6 +11,7 @@ $.getScript("../_lib/soundman/script/soundmanager2-nodebug-jsmin.js", function (
 				soundManager.onready(function(){
 					if(callback) callback();
 				});
+				if(callback) callback();
 			},
 			stopload: true,
 			extendtrial: function (that){

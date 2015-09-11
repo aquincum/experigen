@@ -72,7 +72,7 @@ Experigen.registerPlugin({
 			Experigen.lastPlay = (new Date()).getTime();
 			var idx = which % soundlen;
 			var audiotag = $("#audio" + soundfileid + "x" + idx)[0];
-			console.log("n="+n+", which="+which+", idx="+idx)
+		        console.log("n="+n+", which="+which+", idx="+idx);
 			audiotag.onplay = function(){ Experigen.screen().registerSoundPlay(audiotag,isi);};
 			audiotag.play();
 			audiotag.oncanplay = audiotag.play;
@@ -141,7 +141,7 @@ Experigen.registerPlugin({
 			var isi = obj.isi || 500;
 			var n;
 			if(obj.n){
-				n = obj.n
+			    n = obj.n;
 			}
 			else {
 				n = (soundFile.length == 1) ? 3 : soundFile.length;
@@ -167,7 +167,7 @@ Experigen.registerPlugin({
 			str += '<input type="button" ';
 			str += ' id="' + soundID +'"';
 			str += ' value="' + label + '"';
-			var playcode = 'Experigen.screen().playNTimesWAVSound(\'' + soundID + '\',' + isi + ',' + n + ', this);'
+		        var playcode = 'Experigen.screen().playNTimesWAVSound(\'' + soundID + '\',' + isi + ',' + n + ', this);';
 			str += ' onClick="' + playcode + '"';
 			str += ' onerror="Experigen.screen().handleWAVError;"';
 			str += ' style="margin-left: 10px;"';
