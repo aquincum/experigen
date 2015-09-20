@@ -71,7 +71,7 @@ Experigen.registerPlugin({
 		}
 	    }
 	    // test if sandbox
-	    Experigen.AMT.sandbox = /sandbox/.test(Experigen.AMT.turkSubmitTo) ? true : false;
+	    Experigen.AMT.sandbox = /sandbox/.test(Experigen.AMT.turkSubmitTo);
 	})(); // invoke immediately
 
 	if(callback) callback();
