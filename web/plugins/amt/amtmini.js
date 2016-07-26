@@ -6,6 +6,10 @@
 
 Experigen.registerPlugin({
     extendtrial: function(that){
+        if(!Experigen.AMT){
+            console.error("AMT setup failed for some reason.");
+            Experigen.AMT = {savedFields: [], assignmentId: "NA"};
+        }
 	for(var i = 0; i < Experigen.AMT.savedFields.length; i++){
 	    Experigen.fieldsToSave[Experigen.AMT.savedFields[i]] = true;
 	    that[Experigen.AMT.savedFields[i]] = Experigen.AMT[Experigen.AMT.savedFields[i]];
