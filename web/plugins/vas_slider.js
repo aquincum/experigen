@@ -22,6 +22,7 @@ Experigen.registerPlugin({
 		 * @param [obj.innerwidth=5% of width] The width of the inner slider
 		 * @param [obj.innerpic=null] If specified, the given picture will be used as the background for the slider
 		 * @param [obj.outerpic=null] If specified, the given picture will be used as the background for the outer scale
+		 * @param [obj.ensureClicked=true] If true, subject will be warned if they had not clicked on the slider
 		 * @returns The html for the scale to be included
 		 */
 		var makeVAS = function (width, height, obj) {
@@ -63,7 +64,11 @@ Experigen.registerPlugin({
 			this.savedmove = function(){};
 			this.savedup = function(){};
 			this.borderwidth = 1;
-			this.clicked = false;
+			this.ensureClicked = paramsobj.ensureClicked;
+			if(this.ensureClicked === undefined){
+				this.ensureClicked = true;
+			}
+			this.clicked = this.ensureClicked ? false : true;
 
 			/** Produces the HTML for the VAS
 			 * @returns the HTML
