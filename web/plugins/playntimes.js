@@ -127,6 +127,7 @@ Experigen.registerPlugin({
 		 * will be circulated through the array. 
 		 * @param [obj.n] {Number} How many repetitions in the playback. If soundFile is an array, default n is length of array.
 		 * @param [obj.isi] {Number} Guaranteed minimum ISI in ms. Default is 500.
+                 * @param [obj.autoplay] {Boolean} Whether to autoplay the sound
 		 * @param [obj.maxRepeat] {Number} How many times playback can be repeated by the subject.
 		 */
 		that.makeNTimesWAVSoundButton = function (obj) {
