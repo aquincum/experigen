@@ -21,7 +21,7 @@ Experigen.getCookie = function (name) {
 };
 
 
-// Tries at eligibility counter
+// Attempts at eligibility counter
 Experigen.getEligCount = function () {
 
 	var eligCount = 0;
@@ -41,7 +41,7 @@ Experigen.increaseEligCount = function () {
 }
 
 
-// Block-related cookie functions
+// Block-related cookie
 Experigen.getBlocksDone = function () {
 	
 	var rv = [];
@@ -59,9 +59,28 @@ Experigen.addBlockDone = function(block) {
 	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "blocks",out,30);
 }
 
+
+// Version-related cookie
+Experigen.getVsDone = function () {
+	var vs = Experigen.getCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "vs");
+	if (vs === null) {
+		var vsStr = "";
+	} else {
+		var vsStr = vs;
+	};
+
+	return vsStr
+}
+
+Experigen.setVsDone = function(vs) {
+	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "vs",vs,30);
+}
+	
+	
 Experigen.clearCookies = function() {
 	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "blocks","",-1);
 	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "fail","",-1);
 	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "elig","",-1);
+	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "vs","",-1);
 }
 })();
