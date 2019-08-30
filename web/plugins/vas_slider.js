@@ -119,7 +119,7 @@ Experigen.registerPlugin({
 				var halfwidth = that.innerwidth/2;  // half of the inner div's width
 				var resultingleft = Math.max(clickleft - halfwidth, outerleft); // do not be so left so you fall off to the left
 				resultingleft = Math.min(resultingleft, outerleft + that.width - halfwidth*2); // do not be so right so that you fall of to the right
-				$myinner.offset({left: resultingleft, top: outertop+that.borderwidth}); // repositions the inner div
+				$myinner.offset({left: resultingleft+that.borderwidth, top: outertop+that.borderwidth}); // repositions the inner div
 				var perc = (resultingleft-outerleft)/(that.width - halfwidth*2); // the percentage
 				document.forms["currentform"]["response"+that.n].value = perc.toString(); // setting the hidden response variable to the percentage. This will be sent to the server.
 			};
