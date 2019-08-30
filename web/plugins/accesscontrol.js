@@ -20,6 +20,28 @@ Experigen.getCookie = function (name) {
     return null;
 };
 
+
+// Tries at eligibility counter
+Experigen.getEligCount = function () {
+
+	var eligCount = 0;
+	var eligStr = Experigen.getCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "elig");
+	if (eligStr) {
+		eligCount = parseInt(eligStr);
+	}
+
+	return eligCount;
+}
+
+Experigen.increaseEligCount = function () {
+
+	var oldElig = Experigen.getEligCount();
+	var newElig = oldElig + 1 
+	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "elig",newElig,30);
+}
+
+
+// Block-related cookie functions
 Experigen.getBlocksDone = function () {
 	
 	var rv = [];
@@ -40,5 +62,6 @@ Experigen.addBlockDone = function(block) {
 Experigen.clearCookies = function() {
 	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "blocks","",-1);
 	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "fail","",-1);
+	Experigen.setCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "elig","",-1);
 }
 })();
