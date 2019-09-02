@@ -27,7 +27,7 @@ Experigen.getEligCount = function () {
 	var eligCount = 0;
 	var eligStr = Experigen.getCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "elig");
 	if (eligStr) {
-		eligCount = parseInt(eligStr);
+		eligCount = parseInt(eligStr, 10);
 	}
 
 	return eligCount;
