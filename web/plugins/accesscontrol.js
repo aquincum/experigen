@@ -63,10 +63,9 @@ Experigen.addBlockDone = function(block) {
 // Version-related cookie
 Experigen.getVsDone = function () {
 	var vs = Experigen.getCookie(Experigen.settings.pluginsettings.accesscontrol.cookieprefix + "vs");
-	if (vs === null) {
-		var vsStr = "";
-	} else {
-		var vsStr = vs;
+	var vsStr = "";
+	if (vs != null) {
+		vsStr = vs;
 	};
 
 	return vsStr
